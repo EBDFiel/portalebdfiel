@@ -1,0 +1,1310 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Admin - EBD Fiel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; }
+    .admin-container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+    .header { background: linear-gradient(135deg, #1e293b, #0f172a); border-radius: 20px; padding: 20px 24px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(247,178,77,.2); flex-wrap: wrap; gap: 16px; }
+    .header h1 { color: #f7b24d; display: flex; align-items: center; gap: 10px; }
+    .header-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-sair,.btn-gerador,.btn-manual-topo { padding: 10px 18px; border: none; border-radius: 12px; color: #fff; cursor: pointer; font-weight: 700; display: inline-flex; align-items: center; gap: 8px; transition: all .2s ease; }
+    .btn-sair { background:#ef4444; } .btn-gerador { background:linear-gradient(135deg,#8b5cf6,#7c3aed); } .btn-manual-topo { background:#334155; }
+    .btn-gerador:hover,.btn-manual-topo:hover,.btn-sair:hover,.btn-primary:hover,.btn-success:hover,.btn-danger:hover,.btn-warning:hover,.btn-info:hover,.btn-secondary:hover { transform: translateY(-1px); opacity:.96; }
+    .stats { display:grid; grid-template-columns:repeat(6,1fr); gap:20px; margin-bottom:24px; }
+    .stat-card { background:#1e293b; padding:20px; border-radius:16px; text-align:center; border:1px solid rgba(255,255,255,.08); }
+    .stat-card h2 { font-size:2rem; color:#f7b24d; } .stat-card p { color:#94a3b8; margin-top:8px; font-size:.85rem; }
+    .tabs { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; }
+    .tab { background:#1e293b; padding:10px 18px; border:none; border-radius:10px; color:#94a3b8; cursor:pointer; font-weight:700; font-size:.85rem; display:flex; align-items:center; gap:8px; transition:all .3s; }
+    .tab.active { background:linear-gradient(135deg,#f7b24d,#ff9800); color:#0f172a; }
+    .tab-content { display:none; animation:fadeIn .25s ease; } .tab-content.active { display:block; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(4px);} to { opacity:1; transform:translateY(0);} }
+    .filters,.settings-section { background:#1e293b; padding:20px; border-radius:16px; border:1px solid rgba(255,255,255,.06); }
+    .filters { margin-bottom:20px; display:flex; gap:20px; flex-wrap:wrap; align-items:flex-end; }
+    .filter-group { display:flex; flex-direction:column; gap:6px; }
+    .filter-group label { font-size:.75rem; color:#94a3b8; }
+    .filter-group select,.filter-group input,.form-group input,.form-group textarea,.form-group select { padding:10px 12px; border-radius:8px; border:1px solid rgba(255,255,255,.1); background:#0f172a; color:#fff; font-size:.85rem; width:100%; }
+    .btn-primary,.btn-success,.btn-danger,.btn-warning,.btn-info,.btn-secondary { padding:8px 16px; border:none; border-radius:8px; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px; font-size:.85rem; transition:all .2s ease; }
+    .btn-primary { background:linear-gradient(135deg,#f7b24d,#ff9800); color:#0f172a; }
+    .btn-success { background:#22c55e; color:#fff; } .btn-danger { background:#ef4444; color:#fff; } .btn-warning { background:#f59e0b; color:#fff; } .btn-info { background:#3b82f6; color:#fff; } .btn-secondary { background:#475569; color:#fff; }
+    .table-container { overflow-x:auto; background:#1e293b; border-radius:16px; padding:20px; }
+    table { width:100%; border-collapse:collapse; font-size:.85rem; }
+    th,td { padding:10px; text-align:left; border-bottom:1px solid #334155; } th { color:#f7b24d; } tr:hover { background:rgba(255,255,255,.04); }
+    .btn-edit,.btn-toggle { padding:5px 10px; border:none; border-radius:6px; cursor:pointer; font-size:.75rem; font-weight:700; }
+    .btn-edit { background:#3b82f6; color:#fff; } .btn-toggle.available { background:#22c55e; color:#fff; } .btn-toggle.blocked { background:#ef4444; color:#fff; }
+    .badge { padding:3px 10px; border-radius:20px; font-size:.7rem; font-weight:700; }
+    .badge-available { background:rgba(34,197,94,.18); color:#4ade80; } .badge-blocked { background:rgba(239,68,68,.18); color:#f87171; }
+    .settings-section { margin-bottom:20px; }
+    .settings-section h3 { color:#f7b24d; margin-bottom:16px; display:flex; align-items:center; gap:10px; font-size:1.08rem; }
+    .settings-section p.section-text { color:#94a3b8; margin-bottom:14px; }
+    .form-group { margin-bottom:16px; } .form-group label { display:block; margin-bottom:6px; font-weight:600; font-size:.85rem; }
+    .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; } .form-row-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+    .modal { display:none; position:fixed; inset:0; width:100%; height:100%; background:rgba(0,0,0,.8); justify-content:center; align-items:center; z-index:1000; padding:20px; }
+    .modal-content { background:#1e293b; border-radius:20px; width:100%; max-width:960px; max-height:88vh; overflow-y:auto; border:1px solid rgba(247,178,77,.25); }
+    .modal-header { padding:16px 20px; border-bottom:1px solid #334155; display:flex; justify-content:space-between; align-items:center; gap:16px; }
+    .modal-body { padding:20px; }
+    .modal-close { background:none; border:none; color:#fff; font-size:24px; cursor:pointer; }
+    .trimesters-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+    .trimester-card { background:#1e293b; border-radius:16px; padding:16px; border:1px solid rgba(255,255,255,.08); }
+    .trimester-card h4 { color:#f7b24d; margin-bottom:10px; font-size:1rem; } .trimester-card p { margin:6px 0; color:#94a3b8; font-size:.84rem; }
+    .progress-bar { background:#0f172a; border-radius:10px; height:6px; margin:10px 0; overflow:hidden; } .progress-fill { background:linear-gradient(135deg,#f7b24d,#ff9800); height:100%; border-radius:10px; }
+    .preview-box { background:#fff; color:#000; padding:14px; border-radius:10px; max-height:260px; overflow-y:auto; font-size:.84rem; }
+    .hero-preview { background:linear-gradient(135deg,#1e293b,#0f172a); border-radius:20px; padding:20px; margin-top:20px; border:1px solid rgba(247,178,77,.2); }
+    .internal-analytics-panel { display:none; }
+    .internal-analytics-head { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:20px; }
+    .internal-analytics-kicker,.ai-kicker { display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:999px; font-size:.82rem; font-weight:800; margin-bottom:14px; }
+    .internal-analytics-kicker { background:rgba(247,178,77,.12); border:1px solid rgba(247,178,77,.24); color:#ffe6c2; margin-bottom:12px; }
+    .internal-analytics-head p { color:#94a3b8; margin:0; }
+    .internal-analytics-refresh { background:rgba(59,130,246,.14); border:1px solid rgba(59,130,246,.26); color:#dbeafe; padding:10px 16px; border-radius:14px; cursor:pointer; font-weight:700; display:inline-flex; align-items:center; gap:8px; }
+    .internal-analytics-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:18px; }
+    .internal-analytics-card { background:linear-gradient(135deg,rgba(8,18,34,.9),rgba(10,31,58,.9)); border:1px solid rgba(255,255,255,.08); border-radius:20px; padding:22px 18px; }
+    .internal-analytics-card strong { display:block; font-size:2rem; color:#f7b24d; margin-bottom:6px; } .internal-analytics-card span { color:#94a3b8; font-weight:600; }
+    .internal-analytics-list { display:grid; gap:12px; }
+    .analytics-row { display:flex; align-items:center; justify-content:space-between; gap:16px; padding:18px; border-radius:20px; border:1px solid rgba(255,255,255,.08); background:linear-gradient(135deg,rgba(30,41,59,.85),rgba(15,23,42,.92)); }
+    .analytics-rank { width:48px; min-width:48px; height:48px; border-radius:16px; display:grid; place-items:center; background:linear-gradient(135deg,rgba(247,178,77,.26),rgba(247,178,77,.12)); color:#fff; font-weight:800; font-size:1.1rem; }
+    .analytics-info { flex:1; min-width:0; }
+    .analytics-info strong { display:block; color:#fff; font-size:1rem; margin-bottom:4px; }
+    .analytics-info span { color:#94a3b8; font-size:.9rem; display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .analytics-badge { min-width:120px; text-align:center; padding:10px 14px; border-radius:999px; background:rgba(37,99,235,.18); border:1px solid rgba(59,130,246,.32); color:#dbeafe; font-weight:800; }
+    .empty-analytics { padding:18px; border-radius:18px; background:rgba(255,255,255,.03); border:1px dashed rgba(255,255,255,.1); color:#94a3b8; text-align:center; }
+    .ai-kicker { background:rgba(139,92,246,.16); border:1px solid rgba(139,92,246,.3); color:#e9ddff; }
+    .preset-row { display:flex; flex-wrap:wrap; gap:10px; }
+    .ai-output { min-height:340px; font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace; }
+    .manual-box { background:linear-gradient(135deg,rgba(15,23,42,.96),rgba(30,41,59,.96)); border:1px solid rgba(255,255,255,.08); border-radius:16px; padding:18px; color:#e2e8f0; line-height:1.6; }
+    .manual-box h4 { color:#f7b24d; margin-bottom:12px; font-size:1rem; } .manual-box p { margin-bottom:10px; color:#cbd5e1; }
+    .manual-step { margin-bottom:10px; padding:10px 12px; border-radius:12px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.05); } .manual-step strong { color:#fff; }
+    .status-ok { color:#86efac; } .status-error { color:#fca5a5; } .muted { color:#94a3b8; }
+    @media (max-width:900px){ .stats{grid-template-columns:repeat(2,1fr)} .form-row,.form-row-3,.internal-analytics-grid{grid-template-columns:1fr} .analytics-row{flex-direction:column; align-items:flex-start} .analytics-badge{min-width:auto} }
+    @media (max-width:768px){ .admin-container{padding:12px} .filters{flex-direction:column} .tab{font-size:.72rem; padding:8px 12px} }
+  </style>
+</head>
+<body>
+<div class="admin-container">
+  <div class="header">
+    <h1><i class="fas fa-cog"></i> Painel Administrativo - EBD Fiel</h1>
+    <div class="header-buttons">
+      <button class="btn-manual-topo" id="btnManualTopo"><i class="fas fa-circle-question"></i> Manual</button>
+      <button class="btn-gerador" id="btnGerador"><i class="fas fa-magic"></i> Gerador EBD Fiel</button>
+      <button class="btn-sair" id="btnSair"><i class="fas fa-sign-out-alt"></i> Sair</button>
+    </div>
+  </div>
+
+  <div class="stats">
+    <div class="stat-card"><h2 id="totalLessons">0</h2><p>Total de Lições</p></div>
+    <div class="stat-card"><h2 id="totalTrimesters">0</h2><p>Trimestres</p></div>
+    <div class="stat-card"><h2 id="availableLessons">0</h2><p>Lições Disponíveis</p></div>
+    <div class="stat-card"><h2 id="totalClasses">0</h2><p>Classes</p></div>
+    <div class="stat-card"><h2 id="totalEdits">0</h2><p>Edições Salvas</p></div>
+    <div class="stat-card"><h2 id="totalMedia">0</h2><p>Mídias</p></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="lessons"><i class="fas fa-book"></i> Lições</button>
+    <button class="tab" data-tab="trimesters"><i class="fas fa-layer-group"></i> Trimestres</button>
+    <button class="tab" data-tab="pageContent"><i class="fas fa-file-alt"></i> Conteúdo da Página</button>
+    <button class="tab" data-tab="general"><i class="fas fa-sliders-h"></i> Configurações Gerais</button>
+    <button class="tab" data-tab="social"><i class="fab fa-instagram"></i> Redes Sociais</button>
+    <button class="tab" data-tab="videos"><i class="fab fa-youtube"></i> Vídeos</button>
+    <button class="tab" data-tab="analytics"><i class="fab fa-google"></i> Analytics</button>
+    <button class="tab" data-tab="analyticsInternal" id="internalAnalyticsTab"><i class="fas fa-chart-line"></i> Analytics Interno</button>
+    <button class="tab" data-tab="appearance"><i class="fas fa-palette"></i> Aparência</button>
+    <button class="tab" data-tab="media"><i class="fas fa-photo-video"></i> Mídias</button>
+    <button class="tab" data-tab="descriptions"><i class="fas fa-align-left"></i> Descrições</button>
+    <button class="tab" data-tab="hero"><i class="fas fa-home"></i> Hero Banner</button>
+    <button class="tab" data-tab="aiAdmin"><i class="fas fa-robot"></i> IA Admin</button>
+    <button class="tab" data-tab="backup"><i class="fas fa-database"></i> Backup</button>
+  </div>
+
+  <div id="tabLessons" class="tab-content active">
+    <div class="filters">
+      <div class="filter-group">
+        <label>Classe:</label>
+        <select id="filterClass">
+          <option value="all">Todas</option>
+          <option value="adult">Adultos</option>
+          <option value="youth">Jovens</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Trimestre:</label>
+        <select id="filterTrimester">
+          <option value="all">Todos</option>
+          <option value="1">1º Trimestre</option>
+          <option value="2">2º Trimestre</option>
+          <option value="3">3º Trimestre</option>
+          <option value="4">4º Trimestre</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Status:</label>
+        <select id="filterStatus">
+          <option value="all">Todos</option>
+          <option value="available">Disponíveis</option>
+          <option value="blocked">Bloqueadas</option>
+        </select>
+      </div>
+      <div style="flex:1"></div>
+      <button class="btn-success" id="unlockAllBtn"><i class="fas fa-unlock-alt"></i> Liberar Todas</button>
+      <button class="btn-danger" id="blockAllBtn"><i class="fas fa-lock"></i> Bloquear Todas</button>
+    </div>
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Classe</th>
+            <th>Trim.</th>
+            <th>Lição</th>
+            <th>Título</th>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="lessonsTableBody"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <div id="tabTrimesters" class="tab-content"><div class="trimesters-grid" id="trimestersGrid"></div></div>
+
+  <div id="tabPageContent" class="tab-content">
+    <div class="settings-section">
+      <h3><i class="fas fa-arrow-up"></i> Mensagens do Topo da Página Principal</h3>
+      <div class="form-group"><label>Mensagem Principal do Topo:</label><input type="text" id="topMainMessage" placeholder="Bem-vindos à Escola Bíblica Dominical!"></div>
+      <div class="form-group"><label>Mensagem Secundária do Topo:</label><textarea id="topSecondaryMessage" rows="2" placeholder="Estude a Bíblia conosco todas as semanas."></textarea></div>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-calendar-week"></i> Resumo da Semana</h3>
+      <div class="form-group"><label>Título do Resumo da Semana:</label><input type="text" id="weeklySummaryTitle" placeholder="Resumo da Semana"></div>
+      <div class="form-group"><label>Mensagem/Descrição do Resumo da Semana:</label><textarea id="weeklySummaryMessage" rows="3" placeholder="Nesta semana estudaremos sobre..."></textarea></div>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-video"></i> Chamadas dos Vídeos da Semana - Adultos</h3>
+      <div class="form-group"><label>Título da Chamada do Vídeo - Adultos:</label><input type="text" id="videoCallAdultTitle" placeholder="Vídeo da Semana - Adultos"></div>
+      <div class="form-group"><label>Mensagem da Chamada do Vídeo - Adultos:</label><textarea id="videoCallAdultMessage" rows="3" placeholder="Assista ao vídeo com o resumo da lição desta semana para a classe de Adultos."></textarea></div>
+      <div class="form-group"><label>Texto do Botão - Adultos:</label><input type="text" id="videoCallAdultButton" placeholder="Assistir Agora"></div>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-video"></i> Chamadas dos Vídeos da Semana - Jovens</h3>
+      <div class="form-group"><label>Título da Chamada do Vídeo - Jovens:</label><input type="text" id="videoCallYouthTitle" placeholder="Vídeo da Semana - Jovens"></div>
+      <div class="form-group"><label>Mensagem da Chamada do Vídeo - Jovens:</label><textarea id="videoCallYouthMessage" rows="3" placeholder="Conteúdo especial para jovens com linguagem atual e relevante."></textarea></div>
+      <div class="form-group"><label>Texto do Botão - Jovens:</label><input type="text" id="videoCallYouthButton" placeholder="Assistir Agora"></div>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-copyright"></i> Rodapé do Site</h3>
+      <div class="form-group"><label>Texto da Fonte no Rodapé:</label><input type="text" id="footerSourceText" placeholder="📖 Fonte: EBD Fiel - https://ebdfiel.com.br"></div>
+      <div class="form-group"><label>Versículo do Rodapé:</label><input type="text" id="footerVerseText" placeholder='✝️ "Examinai as Escrituras" - João 5:39'></div>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-info-circle"></i> Texto Sobre o Projeto</h3>
+      <div class="form-group"><label>Texto Sobre o Projeto:</label><textarea id="aboutText" rows="4" placeholder="Projeto dedicado a fornecer material bíblico de qualidade..."></textarea></div>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-bible"></i> Busca Bíblica</h3>
+      <div class="form-group"><label>Título da Busca Bíblica:</label><input type="text" id="bibleSearchTitle" placeholder="Pesquise na Bíblia"></div>
+      <div class="form-group"><label>Subtítulo da Busca Bíblica:</label><textarea id="bibleSearchSubtitle" rows="3" placeholder="Busque versículos, palavras, capítulos e temas bíblicos de forma rápida."></textarea></div>
+      <div class="form-row">
+        <div class="form-group"><label>Placeholder do Campo:</label><input type="text" id="bibleSearchPlaceholder" placeholder="Digite sua pesquisa bíblica..."></div>
+        <div class="form-group"><label>Texto do Botão:</label><input type="text" id="bibleSearchButtonText" placeholder="Pesquisar"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Versão Padrão:</label><select id="bibleSearchDefaultVersion"><option value="acf">ACF</option><option value="ara">ARA</option><option value="naa">NAA</option><option value="nvi">NVI</option></select></div>
+        <div class="form-group"><label>Sugestões rápidas (separe por vírgula):</label><input type="text" id="bibleSearchSuggestions" placeholder="João 3:16, Salmos 91, fé, esperança"></div>
+      </div>
+    </div>
+    <button class="btn-primary save-settings-btn" data-save-group="pageContent"><i class="fas fa-save"></i> Salvar Conteúdo da Página</button>
+    <div id="pageContentStatus" style="margin-top:10px;"></div>
+  </div>
+
+  <div id="tabGeneral" class="tab-content">
+    <div class="settings-section">
+      <h3><i class="fas fa-globe"></i> Informações do Site</h3>
+      <div class="form-group"><label>Nome do Site:</label><input type="text" id="siteName" placeholder="EBD Fiel"></div>
+      <div class="form-group"><label>Descrição do Site (SEO):</label><textarea id="siteDescription" rows="2" placeholder="Lições bíblicas para Escola Bíblica Dominical"></textarea></div>
+      <div class="form-group"><label>Palavras-chave (SEO):</label><input type="text" id="siteKeywords" placeholder="EBD, Escola Bíblica, Lições Bíblicas"></div>
+      <div class="form-group"><label>URL do Site:</label><input type="url" id="siteUrl" placeholder="https://ebdfiel.com.br"></div>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-envelope"></i> Contato</h3>
+      <div class="form-group"><label>Email de Contato:</label><input type="email" id="contactEmail" placeholder="contato@ebdfiel.com.br"></div>
+      <div class="form-group"><label>WhatsApp (com DDD):</label><input type="text" id="contactWhatsapp" placeholder="5511999999999"></div>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-clock"></i> Configurações de Disponibilidade</h3>
+      <div class="form-group"><label>Liberar lições com quantos dias de antecedência?</label><select id="releaseDays"><option value="0">No mesmo dia</option><option value="3">3 dias antes</option><option value="6">6 dias antes (padrão)</option><option value="7">7 dias antes</option><option value="14">14 dias antes</option></select></div>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-code"></i> Códigos Personalizados</h3>
+      <div class="form-group"><label>Código HTML do Header:</label><textarea id="customHeader" rows="4"></textarea></div>
+      <div class="form-group"><label>Código HTML do Footer:</label><textarea id="customFooter" rows="4"></textarea></div>
+    </div>
+    <button class="btn-primary save-settings-btn" data-save-group="general"><i class="fas fa-save"></i> Salvar Configurações Gerais</button>
+  </div>
+
+  <div id="tabSocial" class="tab-content">
+    <div class="settings-section">
+      <h3><i class="fab fa-instagram"></i> Redes Sociais</h3>
+      <div class="form-group"><label>Instagram</label><input type="url" id="socialInstagram" placeholder="https://instagram.com/seu_perfil"></div>
+      <div class="form-group"><label>Facebook</label><input type="url" id="socialFacebook" placeholder="https://facebook.com/sua_pagina"></div>
+      <div class="form-group"><label>YouTube</label><input type="url" id="socialYoutube" placeholder="https://youtube.com/@seu_canal"></div>
+      <div class="form-group"><label>TikTok</label><input type="url" id="socialTiktok" placeholder="https://tiktok.com/@seu_perfil"></div>
+      <button class="btn-primary save-settings-btn" data-save-group="social"><i class="fas fa-save"></i> Salvar Redes Sociais</button>
+    </div>
+  </div>
+
+  <div id="tabVideos" class="tab-content">
+    <div class="settings-section">
+      <h3><i class="fas fa-users"></i> Vídeo Chamada Trimestral</h3>
+      <div class="form-group"><label>ID do YouTube - Adultos:</label><input type="text" id="videoAdult" placeholder="tQg7bmcS4yM"></div>
+      <div class="form-group"><label>ID do YouTube - Jovens:</label><input type="text" id="videoYouth" placeholder="uCCysCorUok"></div>
+      <button class="btn-primary save-settings-btn" data-save-group="videos"><i class="fas fa-save"></i> Salvar Vídeos</button>
+    </div>
+  </div>
+
+  <div id="tabAnalytics" class="tab-content">
+    <div class="settings-section">
+      <h3><i class="fab fa-google"></i> Google Analytics (GA4)</h3>
+      <div class="form-group"><label>ID do Google Analytics (GA4):</label><input type="text" id="gaId" placeholder="G-XXXXXXXXXX"></div>
+      <button class="btn-primary save-settings-btn" data-save-group="analytics"><i class="fas fa-save"></i> Salvar Google Analytics</button>
+    </div>
+  </div>
+
+  <div id="tabAnalyticsInternal" class="tab-content">
+    <div class="settings-section internal-analytics-panel" id="internalAnalyticsSection" style="display:block;">
+      <div class="internal-analytics-head">
+        <div>
+          <span class="internal-analytics-kicker"><i class="fas fa-chart-line"></i> Analytics interno</span>
+          <h3>As lições mais acessadas</h3>
+          <p>Ranking automático com base nas aberturas registradas no site.</p>
+        </div>
+        <button type="button" class="internal-analytics-refresh" id="analyticsRefreshBtn"><i class="fas fa-rotate"></i> Atualizar</button>
+      </div>
+      <div class="internal-analytics-grid">
+        <div class="internal-analytics-card"><strong id="analyticsTotalViews">0</strong><span>Aberturas registradas</span></div>
+        <div class="internal-analytics-card"><strong id="analyticsTopAdult">—</strong><span>Destaque Adultos</span></div>
+        <div class="internal-analytics-card"><strong id="analyticsTopYouth">—</strong><span>Destaque Jovens</span></div>
+      </div>
+      <div class="internal-analytics-list" id="analyticsRankingList"><div class="empty-analytics">Sem dados por enquanto.</div></div>
+    </div>
+  </div>
+
+  <div id="tabAppearance" class="tab-content">
+    <div class="settings-section">
+      <h3><i class="fas fa-palette"></i> Cores do Site</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Cor Principal:</label><input type="color" id="primaryColor" value="#f7b24d"></div>
+        <div class="form-group"><label>Cor Secundária:</label><input type="color" id="secondaryColor" value="#ff9800"></div>
+      </div>
+      <button class="btn-primary save-settings-btn" data-save-group="appearance"><i class="fas fa-save"></i> Salvar Cores</button>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-heading"></i> Títulos do Site</h3>
+      <div class="form-group"><label>Título Principal:</label><input type="text" id="siteTitle" placeholder="EBD Fiel"></div>
+      <div class="form-group"><label>Subtítulo:</label><input type="text" id="siteSubtitle" placeholder="Fiel à Palavra. Relevante para hoje."></div>
+      <button class="btn-primary save-settings-btn" data-save-group="titles"><i class="fas fa-save"></i> Salvar Títulos</button>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-image"></i> Logo</h3>
+      <div class="form-group"><label>URL do Logo:</label><input type="text" id="logoUrl" placeholder="./ebdfiel.png"></div>
+      <button class="btn-primary save-settings-btn" data-save-group="logo"><i class="fas fa-save"></i> Salvar Logo</button>
+    </div>
+  </div>
+
+  <div id="tabMedia" class="tab-content">
+    <div class="settings-section">
+      <h3><i class="fas fa-upload"></i> Upload de Mídia</h3>
+      <div class="form-row-3">
+        <div class="form-group"><label>Vídeo da Semana (Adultos):</label><input type="file" id="uploadAdultVideo" accept="video/mp4,video/webm"><small>URL atual: <span id="currentAdultVideoUrl">Nenhum</span></small></div>
+        <div class="form-group"><label>Vídeo da Semana (Jovens):</label><input type="file" id="uploadYouthVideo" accept="video/mp4,video/webm"><small>URL atual: <span id="currentYouthVideoUrl">Nenhum</span></small></div>
+        <div class="form-group"><label>Podcast Adultos (MP3):</label><input type="file" id="uploadAdultPodcast" accept="audio/mpeg"><small>URL atual: <span id="currentAdultPodcastUrl">Nenhum</span></small></div>
+        <div class="form-group"><label>Podcast Jovens (MP3):</label><input type="file" id="uploadYouthPodcast" accept="audio/mpeg"><small>URL atual: <span id="currentYouthPodcastUrl">Nenhum</span></small></div>
+      </div>
+      <button class="btn-primary save-settings-btn" data-save-group="media"><i class="fas fa-cloud-upload-alt"></i> Salvar referências de mídia</button>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-headphones"></i> URLs dos Podcasts</h3>
+      <div class="form-row">
+        <div class="form-group"><label>Podcast Adultos URL:</label><input type="text" id="podcastAdultUrl" placeholder="./podcasts/adultos-semana.mp3"></div>
+        <div class="form-group"><label>Podcast Jovens URL:</label><input type="text" id="podcastYouthUrl" placeholder="./podcasts/jovens-semana.mp3"></div>
+      </div>
+      <button class="btn-primary save-settings-btn" data-save-group="podcasts"><i class="fas fa-save"></i> Salvar URLs dos Podcasts</button>
+    </div>
+  </div>
+
+  <div id="tabDescriptions" class="tab-content">
+    <div class="settings-section">
+      <h3><i class="fas fa-align-left"></i> Descrições das Classes</h3>
+      <div class="form-group"><label>Descrição Adultos:</label><textarea id="adultDescription" rows="3"></textarea></div>
+      <div class="form-group"><label>Descrição Jovens:</label><textarea id="youthDescription" rows="3"></textarea></div>
+      <div class="form-group"><label>Descrição Hero (principal):</label><textarea id="heroDescription" rows="3"></textarea></div>
+      <div class="form-group"><label>Texto Sobre o Projeto:</label><textarea id="aboutTextDesc" rows="4"></textarea></div>
+      <button class="btn-primary save-settings-btn" data-save-group="descriptions"><i class="fas fa-save"></i> Salvar Descrições</button>
+    </div>
+  </div>
+
+  <div id="tabHero" class="tab-content">
+    <div class="settings-section">
+      <h3><i class="fas fa-home"></i> Hero Banner - Personalização</h3>
+      <div class="form-group"><label>Título do Hero:</label><input type="text" id="heroTitle" placeholder="Vivendo Fiel e ensinando a Palavra de Deus todos os dias."></div>
+      <div class="form-group"><label>Subtítulo do Hero:</label><textarea id="heroSubtitle" rows="2"></textarea></div>
+      <div class="form-group"><label>URL da Imagem de Fundo:</label><input type="text" id="heroBackground" placeholder="./img/fundo.png"></div>
+      <div class="form-group"><label>Cor do Gradiente (RGBA):</label><input type="text" id="heroGradient" placeholder="rgba(7,17,31,0.75), rgba(7,17,31,0.95)"></div>
+      <button class="btn-primary save-settings-btn" data-save-group="hero"><i class="fas fa-save"></i> Salvar Hero Banner</button>
+      <div class="hero-preview" id="heroPreview">
+        <h4 style="margin-bottom:12px;">Pré-visualização</h4>
+        <div id="heroPreviewBox" style="background: linear-gradient(180deg, rgba(7,17,31,0.75), rgba(7,17,31,0.95)), url('./img/fundo.png') center/cover no-repeat; padding: 40px; border-radius: 20px; text-align: center;">
+          <strong id="heroPreviewTitle" style="color:#f7b24d">Título aparecerá aqui</strong>
+          <p id="heroPreviewSubtitle" style="color:#fff; margin-top:10px;">Prévia do subtítulo...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tabAiAdmin" class="tab-content">
+    <div class="settings-section">
+      <span class="ai-kicker"><i class="fas fa-shield-halved"></i> Área exclusiva do administrador</span>
+      <h3><i class="fas fa-robot"></i> DeepSeek — Geração de Lições e Conteúdos</h3>
+      <p class="section-text">Gere o conteúdo da lição com o modelo certo de Jovens ou Adultos, visualize no padrão real do site e publique só quando estiver pronto.</p>
+      <div style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:18px;">
+        <button class="btn-secondary" id="btnManualIa"><i class="fas fa-book-open"></i> Manual de uso</button>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group">
+          <label>Tipo de conteúdo:</label>
+          <select id="aiType">
+            <option value="licao">Lição</option><option value="resumo">Resumo</option><option value="introducao">Introdução</option><option value="conclusao">Conclusão</option><option value="questionario">Questionário</option><option value="aplicacao">Aplicação prática</option><option value="descricao">Descrição</option><option value="roteiro">Roteiro</option><option value="html">HTML pronto</option><option value="geral">Conteúdo geral</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Classe da lição:</label>
+          <select id="aiLessonTipo"><option value="adult">Adultos</option><option value="youth">Jovens</option></select>
+        </div>
+        <div class="form-group">
+          <label>Formato de saída:</label>
+          <select id="aiFormato"><option value="html">HTML</option><option value="markdown">Markdown</option><option value="texto">Texto puro</option></select>
+        </div>
+      </div>
+      <div class="form-row-3">
+        <div class="form-group"><label>Número da lição:</label><input type="number" id="aiLessonNumero" min="1" placeholder="Ex.: 3"></div>
+        <div class="form-group"><label>Trimestre:</label><select id="aiLessonTrimestre"><option value="1">1º Trimestre</option><option value="2">2º Trimestre</option><option value="3">3º Trimestre</option><option value="4">4º Trimestre</option></select></div>
+        <div class="form-group"><label>Data da lição:</label><input type="text" id="aiLessonData" placeholder="Ex.: 21/04/2026"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Título:</label><input type="text" id="aiTitulo" placeholder="Ex.: Lição 3 — Preparando-se para o agir de Deus"></div>
+        <div class="form-group"><label>Tema:</label><input type="text" id="aiTema" placeholder="Ex.: Neemias, oração, perseverança, obediência"></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Objetivo:</label><input type="text" id="aiObjetivo" placeholder="Ex.: gerar conteúdo útil para professor e aluno"></div>
+        <div class="form-group"><label>Tom:</label><input type="text" id="aiTom" placeholder="Ex.: bíblico, claro, pastoral, impactante"></div>
+      </div>
+      <div class="form-group"><label>Texto base da revista:</label><textarea id="aiTextoBase" rows="12" placeholder="Cole aqui o conteúdo completo da revista..."></textarea></div>
+      <div class="form-group"><label>Instruções extras:</label><textarea id="aiInstrucoes" rows="4" placeholder="Ex.: preservar o conteúdo original, aprofundar apoio pedagógico, manter linguagem pastoral, entregar HTML pronto para o site..."></textarea></div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <button class="btn-primary" id="aiGenerateBtn"><i class="fas fa-bolt"></i> Gerar com DeepSeek</button>
+        <button class="btn-info" id="aiRefinarBtn"><i class="fas fa-wand-magic-sparkles"></i> Refinar texto atual</button>
+        <button class="btn-secondary" id="aiPreviewBtn"><i class="fas fa-eye"></i> Visualizar antes de publicar</button>
+        <button class="btn-success" id="aiPublishBtn"><i class="fas fa-upload"></i> Publicar nesta lição</button>
+        <button class="btn-success" id="aiUseOnLessonBtn"><i class="fas fa-file-import"></i> Enviar para o editor da lição</button>
+        <button class="btn-warning" id="aiCopyBtn"><i class="fas fa-copy"></i> Copiar resultado</button>
+        <button class="btn-danger" id="aiClearBtn"><i class="fas fa-eraser"></i> Limpar</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3><i class="fas fa-sparkles"></i> Presets rápidos</h3>
+      <div class="preset-row">
+        <button class="btn-info ai-preset" data-preset="licao">Lição completa</button>
+        <button class="btn-info ai-preset" data-preset="questionario">Questionário difícil</button>
+        <button class="btn-info ai-preset" data-preset="resumo">Resumo da semana</button>
+        <button class="btn-info ai-preset" data-preset="html">HTML pronto</button>
+        <button class="btn-info ai-preset" data-preset="descricao">Descrição de vídeo</button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3><i class="fas fa-file-lines"></i> Resultado da IA</h3>
+      <div class="form-group"><textarea id="aiResultado" class="ai-output" rows="16" placeholder="O conteúdo gerado aparecerá aqui..."></textarea></div>
+      <div class="form-group"><label>Pré-visualização rápida:</label><div id="aiPreview" class="preview-box" style="max-height:380px;"></div></div>
+      <div id="aiStatus" style="margin-top:10px;"></div>
+    </div>
+  </div>
+
+  <div id="tabBackup" class="tab-content">
+    <div class="settings-section">
+      <h3><i class="fas fa-download"></i> Exportar Dados</h3>
+      <p>Exporte todas as lições, configurações, mídias e overrides para um arquivo JSON.</p>
+      <button class="btn-primary" id="exportBtn"><i class="fas fa-file-export"></i> Exportar JSON Completo</button>
+    </div>
+    <div class="settings-section">
+      <h3><i class="fas fa-upload"></i> Importar Dados</h3>
+      <p>Importe dados de um arquivo JSON de backup.</p>
+      <input type="file" id="importFile" accept=".json" style="margin:12px 0;">
+      <button class="btn-primary" id="importBtn"><i class="fas fa-file-import"></i> Importar JSON</button>
+    </div>
+    <div class="settings-section" style="border:1px solid rgba(239,68,68,.3);">
+      <h3 style="color:#ef4444;"><i class="fas fa-exclamation-triangle"></i> Zona de Perigo</h3>
+      <p>Resetar todas as configurações e dados do site. Esta ação não pode ser desfeita.</p>
+      <button class="btn-danger" id="resetBtn"><i class="fas fa-trash-alt"></i> Resetar Tudo</button>
+      <button class="btn-warning" id="clearCacheBtn" style="margin-left:12px;"><i class="fas fa-broom"></i> Limpar Cache</button>
+    </div>
+  </div>
+</div>
+
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3><i class="fas fa-edit"></i> Editar Lição</h3>
+      <button class="modal-close" id="closeModalBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group"><label>Título:</label><input type="text" id="editTitle"></div>
+      <div class="form-group"><label>Data (DD/MM/AAAA):</label><input type="text" id="editDate" placeholder="04/01/2026"></div>
+      <div class="form-group"><label>Conteúdo (HTML):</label><textarea id="editContent" rows="10" style="font-family:monospace;"></textarea></div>
+      <div class="form-group"><label>Pré-visualização:</label><div id="preview" class="preview-box"></div></div>
+      <div style="display:flex; gap:12px; flex-wrap:wrap;">
+        <button class="btn-primary" id="saveLessonBtn"><i class="fas fa-save"></i> Salvar</button>
+        <button class="btn-warning" id="formatHtmlBtn"><i class="fas fa-magic"></i> Formatador Rápido</button>
+        <button class="btn-danger" id="cancelModalBtn">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="manualModal" class="modal">
+  <div class="modal-content" style="max-width:860px;">
+    <div class="modal-header">
+      <h3><i class="fas fa-book-open"></i> Manual de uso — IA Admin</h3>
+      <button class="modal-close" id="closeManualModalBtn">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="manual-box">
+        <h4>Como usar a IA no painel</h4>
+        <div class="manual-step"><strong>1. Escolha a classe certa</strong><br>Defina se a lição é de <b>Adultos</b> ou <b>Jovens</b>. Isso muda o modelo que o servidor usa no DeepSeek.</div>
+        <div class="manual-step"><strong>2. Preencha número, trimestre e data</strong><br>Esses campos ajudam a IA a gerar no contexto certo e também servem para o botão de publicar na lição correta.</div>
+        <div class="manual-step"><strong>3. Cole o texto completo da revista</strong><br>O campo “Texto base da revista” deve receber o conteúdo original. O modelo foi pensado para preservar esse conteúdo e complementar pedagogicamente.</div>
+        <div class="manual-step"><strong>4. Clique em “Gerar com DeepSeek”</strong><br>O painel envia automaticamente número, trimestre, data, público e <b>mode: "smart_template"</b>.</div>
+        <div class="manual-step"><strong>5. Revise no resultado e use a prévia real</strong><br>Use o botão <b>Visualizar antes de publicar</b>. Ele abre a própria lição em nova aba com o HTML final gerado.</div>
+        <div class="manual-step"><strong>6. Ajuste se precisar</strong><br>Você pode refinar o texto, copiar, enviar para o editor ou publicar direto.</div>
+        <div class="manual-step"><strong>7. Publicar na lição selecionada</strong><br>O botão <b>Publicar nesta lição</b> grava o conteúdo como override da lição escolhida no Firebase.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+const API_BASE = "https://gerador-licoes-adulto.onrender.com";
+
+import { db, auth, ADMIN_EMAIL, ref, get, set, update, onValue } from "./firebase-config.js";
+import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+let lessonsData = { adult: [], youth: [] };
+let adminOverrides = {};
+let contentOverrides = {};
+let internalAnalytics = {};
+let pageSettings = {};
+let currentEditLesson = null;
+let editCount = 0;
+let aiLastGeneratedPayload = null;
+let aiLastGeneratedLesson = null;
+let aiLastGeneratedHtml = "";
+
+const PURE_TEMPLATE_ADULT = `<!DOCTYPE html>
+<html lang="pt-br"><body>
+<div class="lesson-container">
+<div class="header-gradient">
+<div class="lesson-number">📘 Escola Bíblica Dominical | Classe de Adultos</div>
+<div class="lesson-title">Lição [Número]: [Título da Lição]</div>
+</div>
+<div class="verse"><strong>📖 TEXTO ÁUREO:</strong> [Inserir versículo aqui]</div>
+<div class="truth"><strong>✨ VERDADE APLICADA:</strong> [Inserir verdade aplicada aqui]</div>
+<div class="refs"><strong>📌 TEXTOS DE REFERÊNCIA:</strong> [Inserir referências aqui]</div>
+<div><strong>🔍 ANÁLISE GERAL DA LIÇÃO</strong><br>[mínimo 4 parágrafos]</div>
+<div><strong>📌 INTRODUÇÃO:</strong> [Conteúdo da introdução]</div>
+<div><strong>1. [TÍTULO DO TÓPICO 1]:</strong> [Conteúdo original]</div>
+<div class="pedagogical-block"><strong>📘 APOIO PEDAGÓGICO:</strong> [mínimo 3 a 4 parágrafos]</div>
+<div class="application-block"><strong>🎯 APLICAÇÃO PRÁTICA:</strong> [2 a 4 linhas]</div>
+<div><strong>1.1. [Subtítulo]:</strong> [Conteúdo original]</div>
+<div class="pedagogical-block"><strong>📘 APOIO PEDAGÓGICO:</strong> [mínimo 3 a 4 parágrafos]</div>
+<div class="application-block"><strong>🎯 APLICAÇÃO PRÁTICA:</strong> [2 a 4 linhas]</div>
+<div class="eu-ensinei"><strong>✨ Eu ensinei que:</strong> [Frase de destaque]</div>
+<div><strong>2. [TÍTULO DO TÓPICO 2]:</strong> [Conteúdo original]</div>
+<div class="pedagogical-block"><strong>📘 APOIO PEDAGÓGICO:</strong> [mínimo 3 a 4 parágrafos]</div>
+<div class="application-block"><strong>🎯 APLICAÇÃO PRÁTICA:</strong> [2 a 4 linhas]</div>
+<div><strong>3. [TÍTULO DO TÓPICO 3]:</strong> [Conteúdo original]</div>
+<div class="pedagogical-block"><strong>📘 APOIO PEDAGÓGICO:</strong> [mínimo 3 a 4 parágrafos]</div>
+<div class="application-block"><strong>🎯 APLICAÇÃO PRÁTICA:</strong> [2 a 4 linhas]</div>
+<div><strong>CONCLUSÃO:</strong> [Conteúdo da conclusão]</div>
+<div class="pedagogical-block"><strong>📘 APOIO PEDAGÓGICO (CONCLUSÃO):</strong> [mínimo 3 a 4 parágrafos]</div>
+<div class="application-block"><strong>🎯 APLICAÇÃO PRÁTICA (CONCLUSÃO):</strong> [2 a 4 linhas]</div>
+<hr>
+<div><strong>🎵 HINOS SUGERIDOS:</strong> [Inserir hinos]</div>
+<div><strong>🙏 MOTIVO DE ORAÇÃO:</strong> [Inserir motivo de oração]</div>
+</div></body></html>`;
+
+const PURE_TEMPLATE_YOUTH = `<!DOCTYPE html>
+<html lang="pt-br"><body>
+<div class="lesson-container">
+<div class="header-gradient">
+<div class="lesson-number">📘 Escola Bíblica Dominical | Classe de Jovens</div>
+<div class="lesson-title">Lição [Número]: [Título da Lição]</div>
+</div>
+<div class="verse"><strong>📖 TEXTO ÁUREO / VERSÍCULO DO DIA:</strong> [Inserir versículo aqui]</div>
+<div class="truth"><strong>✨ VERDADE APLICADA:</strong> [Inserir verdade aplicada aqui]</div>
+<div class="refs"><strong>📌 TEXTO DE REFERÊNCIA:</strong> [Inserir referências aqui]</div>
+<div><strong>🔍 ANÁLISE GERAL DA LIÇÃO</strong><br>[Conteúdo da análise geral]</div>
+<div><strong>📌 INTRODUÇÃO:</strong> [Conteúdo da introdução]</div>
+<div class="eu-ensinei" style="background:#e8f0e0;"><strong>🔑 Ponto-Chave:</strong> [Inserir ponto-chave aqui]</div>
+<div><strong>1. [TÍTULO DO TÓPICO 1]:</strong> [Conteúdo original]</div>
+<div class="pedagogical-block"><strong>📘 APOIO PEDAGÓGICO:</strong> [Conteúdo pedagógico]</div>
+<div class="application-block"><strong>🎯 APLICAÇÃO PRÁTICA:</strong> [Aplicação prática]</div>
+<div><strong>1.1. [Subtítulo]:</strong> [Conteúdo original]</div>
+<div class="pedagogical-block"><strong>📘 APOIO PEDAGÓGICO:</strong> [Conteúdo pedagógico]</div>
+<div class="application-block"><strong>🎯 APLICAÇÃO PRÁTICA:</strong> [Aplicação prática]</div>
+<div class="eu-ensinei"><strong>✨ Eu ensinei que:</strong> [Frase de destaque]</div>
+<div><strong>2. [TÍTULO DO TÓPICO 2]:</strong> [Conteúdo original]</div>
+<div class="pedagogical-block"><strong>📘 APOIO PEDAGÓGICO:</strong> [Conteúdo pedagógico]</div>
+<div class="application-block"><strong>🎯 APLICAÇÃO PRÁTICA:</strong> [Aplicação prática]</div>
+<div><strong>3. [TÍTULO DO TÓPICO 3]:</strong> [Conteúdo original]</div>
+<div class="pedagogical-block"><strong>📘 APOIO PEDAGÓGICO:</strong> [Conteúdo pedagógico]</div>
+<div class="application-block"><strong>🎯 APLICAÇÃO PRÁTICA:</strong> [Aplicação prática]</div>
+<div><strong>CONCLUSÃO:</strong> [Conteúdo da conclusão]</div>
+<div class="pedagogical-block"><strong>📘 APOIO PEDAGÓGICO (CONCLUSÃO):</strong> [Conteúdo pedagógico]</div>
+<div class="application-block"><strong>🎯 APLICAÇÃO PRÁTICA (CONCLUSÃO):</strong> [Aplicação prática]</div>
+<hr>
+<div><strong>🎵 HINOS SUGERIDOS / MOMENTO DE ORAÇÃO:</strong> [Conteúdo]</div>
+</div></body></html>`;
+
+function safeKey(key) { return String(key).replaceAll(":", "__"); }
+function normalizeOverrideKey(key) { const raw = String(key || ""); return [raw, safeKey(raw)]; }
+function getOverrideValue(map, key) { const [rawKey, safeStorageKey] = normalizeOverrideKey(key); return map?.[rawKey] ?? map?.[safeStorageKey]; }
+function getCanonicalLessonNumber(lesson) { const value = Number(lesson?.numero ?? lesson?.lessonNumber ?? lesson?.lessonId ?? lesson?.id ?? 0); return Number.isFinite(value) && value > 0 ? value : 0; }
+function getLessonKey(lesson) { const numeroCanonico = Number(lesson.numero || lesson.id || 0); return `${lesson.tipo}:${numeroCanonico}`; }
+function getCurrentTrimester() { const month = new Date().getMonth() + 1; if (month <= 3) return "1"; if (month <= 6) return "2"; if (month <= 9) return "3"; return "4"; }
+function showTab(tabName){ document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tabName)); document.querySelectorAll(".tab-content").forEach(c => c.classList.toggle("active", c.id === `tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}`)); }
+function setAiStatus(message, isError = false){ const el = document.getElementById("aiStatus"); if (!el) return; el.innerHTML = `<span class="${isError ? "status-error" : "status-ok"}">${message}</span>`; }
+function getAllLessons(){ return [...lessonsData.adult, ...lessonsData.youth]; }
+
+function normalizeLessons(data) {
+  lessonsData = {
+    adult: (data?.adult || []).map((l, index) => {
+      const canonical = Number(l?.numero ?? l?.lessonNumber ?? l?.lessonId ?? l?.id ?? index + 1) || (index + 1);
+      return { ...l, id: Number(l?.id ?? canonical) || canonical, numero: Number(l?.numero ?? canonical) || canonical, tipo: "adult" };
+    }),
+    youth: (data?.youth || []).map((l, index) => {
+      const canonical = Number(l?.numero ?? l?.lessonNumber ?? l?.lessonId ?? l?.id ?? index + 1) || (index + 1);
+      return { ...l, id: Number(l?.id ?? canonical) || canonical, numero: Number(l?.numero ?? canonical) || canonical, tipo: "youth" };
+    })
+  };
+}
+
+function isLessonAvailable(lesson){
+  const key = getLessonKey(lesson);
+  const override = getOverrideValue(adminOverrides, key);
+  if (typeof override?.available === "boolean") return override.available;
+  return !!lesson.available;
+}
+
+function updateStats() {
+  const total = lessonsData.adult.length + lessonsData.youth.length;
+  const trimestres = new Set();
+  let available = 0;
+  getAllLessons().forEach(lesson => {
+    trimestres.add(String(lesson.trimestre || ""));
+    if (isLessonAvailable(lesson)) available++;
+  });
+  document.getElementById("totalLessons").textContent = String(total);
+  document.getElementById("totalTrimesters").textContent = String([...trimestres].filter(Boolean).length);
+  document.getElementById("availableLessons").textContent = String(available);
+  document.getElementById("totalClasses").textContent = "2";
+  document.getElementById("totalEdits").textContent = String(Object.keys(contentOverrides || {}).length);
+  document.getElementById("totalMedia").textContent = String(0);
+}
+
+function renderTrimesters() {
+  const grid = document.getElementById("trimestersGrid");
+  if (!grid) return;
+  const groups = {};
+  getAllLessons().forEach(lesson => {
+    const key = `${lesson.tipo}-${lesson.trimestre || 0}`;
+    groups[key] ||= { tipo: lesson.tipo, trimestre: lesson.trimestre || "—", total: 0, disponiveis: 0 };
+    groups[key].total++;
+    if (isLessonAvailable(lesson)) groups[key].disponiveis++;
+  });
+  grid.innerHTML = Object.values(groups).map(g => {
+    const pct = g.total ? Math.round((g.disponiveis / g.total) * 100) : 0;
+    return `<div class="trimester-card">
+      <h4>${g.tipo === "adult" ? "Adultos" : "Jovens"} — ${g.trimestre}º Trimestre</h4>
+      <p>Total de lições: ${g.total}</p>
+      <p>Disponíveis: ${g.disponiveis}</p>
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <p>${pct}% liberado</p>
+    </div>`;
+  }).join("") || `<div class="trimester-card"><p>Nenhum trimestre carregado.</p></div>`;
+}
+
+function renderTable() {
+  const tbody = document.getElementById("lessonsTableBody");
+  if (!tbody) return;
+
+  const filterClass = document.getElementById("filterClass")?.value || "all";
+  const filterTrimester = document.getElementById("filterTrimester")?.value || "all";
+  const filterStatus = document.getElementById("filterStatus")?.value || "all";
+
+  let all = [];
+  lessonsData.adult.forEach(l => all.push({ ...l, classeNome: "Adultos" }));
+  lessonsData.youth.forEach(l => all.push({ ...l, classeNome: "Jovens" }));
+
+  all = all.filter(lesson => {
+    if (filterClass !== "all" && lesson.tipo !== filterClass) return false;
+    if (filterTrimester !== "all" && String(lesson.trimestre || "") !== filterTrimester) return false;
+    const available = isLessonAvailable(lesson);
+    if (filterStatus === "available" && !available) return false;
+    if (filterStatus === "blocked" && available) return false;
+    return true;
+  });
+
+  tbody.innerHTML = all.map(lesson => {
+    const available = isLessonAvailable(lesson);
+    const key = getLessonKey(lesson);
+    const overrideContent = getOverrideValue(contentOverrides, key);
+    const title = overrideContent?.titulo || lesson.titulo || `Lição ${lesson.numero}`;
+    const date = overrideContent?.data || lesson.data || "";
+    return `<tr>
+      <td>${lesson.classeNome}</td>
+      <td>${lesson.trimestre || ""}</td>
+      <td>${lesson.numero}</td>
+      <td>${title}</td>
+      <td>${date}</td>
+      <td><span class="badge ${available ? "badge-available" : "badge-blocked"}">${available ? "Disponível" : "Bloqueada"}</span></td>
+      <td style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn-edit" data-action="edit" data-key="${key}">Editar</button>
+        <button class="btn-toggle ${available ? "available" : "blocked"}" data-action="toggle" data-key="${key}">${available ? "Bloquear" : "Liberar"}</button>
+      </td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="7" class="muted">Nenhuma lição encontrada.</td></tr>`;
+}
+
+function findLessonByKey(key){
+  const [tipo, numeroRaw] = String(key).split(":");
+  const numero = Number(numeroRaw);
+  return lessonsData[tipo]?.find(l => Number(l.numero || l.id) === numero) || null;
+}
+
+async function setLessonAvailability(lesson, available){
+  const key = getLessonKey(lesson);
+  const [, safeStorageKey] = normalizeOverrideKey(key);
+  const payload = { ...(getOverrideValue(adminOverrides, key) || {}), available, updatedAt: new Date().toISOString() };
+  await update(ref(db, "ebd/overrides/admin"), { [key]: payload, [safeStorageKey]: payload });
+  adminOverrides[key] = payload;
+  adminOverrides[safeStorageKey] = payload;
+  renderTable();
+  updateStats();
+}
+
+async function upsertLessonIntoBaseList(tipo, numero, payload) {
+  const nodePath = tipo === "youth" ? "ebd/lessons/youth" : "ebd/lessons/adult";
+  const current = lessonsData[tipo] || [];
+  const idx = current.findIndex(item => Number(item.numero || item.id) === Number(numero));
+  const merged = {
+    ...(idx >= 0 ? current[idx] : {}),
+    ...payload,
+    numero: Number(numero),
+    id: Number(numero),
+    tipo
+  };
+  if (idx >= 0) current[idx] = merged; else current.push(merged);
+  current.sort((a,b) => Number(a.numero || a.id) - Number(b.numero || b.id));
+  lessonsData[tipo] = current;
+  await set(ref(db, nodePath), current);
+}
+
+function openEditModal(lesson){
+  currentEditLesson = lesson;
+  const key = getLessonKey(lesson);
+  const override = getOverrideValue(contentOverrides, key);
+  document.getElementById("editTitle").value = override?.titulo || lesson.titulo || "";
+  document.getElementById("editDate").value = override?.data || lesson.data || "";
+  document.getElementById("editContent").value = override?.conteudo || lesson.conteudo || "";
+  document.getElementById("preview").innerHTML = extractBodyFromFullHtml(document.getElementById("editContent").value);
+  document.getElementById("editModal").style.display = "flex";
+}
+
+async function saveLessonEdit() {
+  if (!currentEditLesson) return;
+  const title = document.getElementById("editTitle")?.value || currentEditLesson.titulo || "Lição";
+  const date = document.getElementById("editDate")?.value || currentEditLesson.data || "";
+  const content = document.getElementById("editContent")?.value || "";
+  if (!String(content).trim()) { alert("❌ O conteúdo do editor está vazio."); return; }
+
+  const key = getLessonKey(currentEditLesson);
+  const [, safeStorageKey] = normalizeOverrideKey(key);
+  const canonicalNumber = getCanonicalLessonNumber(currentEditLesson);
+
+  const payloadToSave = {
+    titulo: title,
+    data: date,
+    conteudo: content,
+    html: content,
+    numero: canonicalNumber,
+    trimestre: Number(currentEditLesson.trimestre || 0) || null,
+    tipo: currentEditLesson.tipo || "adult",
+    updatedAt: new Date().toISOString(),
+    source: "editor_admin"
+  };
+
+  await upsertLessonIntoBaseList(payloadToSave.tipo, canonicalNumber, payloadToSave);
+  await update(ref(db, "ebd/overrides/content"), { [key]: payloadToSave, [safeStorageKey]: payloadToSave });
+
+  contentOverrides[key] = payloadToSave;
+  contentOverrides[safeStorageKey] = payloadToSave;
+  editCount++;
+  renderTable();
+  updateStats();
+  closeModal();
+  alert(`✅ Lição salva com sucesso!\nChave: ${key}`);
+}
+
+function formatHtml() {
+  let text = document.getElementById("editContent").value;
+  text = text
+    .replace(/^### (.*)$/gm, "<h3>$1</h3>")
+    .replace(/^## (.*)$/gm, "<h2>$1</h2>")
+    .replace(/^# (.*)$/gm, "<h1>$1</h1>")
+    .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*(.*?)\*/g, "<em>$1</em>")
+    .replace(/^- (.*)$/gm, "<li>$1</li>")
+    .replace(/\n\n/g, "</p><p>");
+  text = "<p>" + text + "</p>";
+  text = text.replace(/<p>(\s*<h[1-6]>)/g, "$1");
+  text = text.replace(/(<\/h[1-6]>)\s*<\/p>/g, "$1");
+  text = text.replace(/<p>(\s*<li>.*<\/li>\s*)<\/p>/g, "<ul>$1</ul>");
+  document.getElementById("editContent").value = text;
+  document.getElementById("preview").innerHTML = extractBodyFromFullHtml(text);
+}
+
+function closeModal(){ document.getElementById("editModal").style.display = "none"; currentEditLesson = null; }
+function openManualModal(){ document.getElementById("manualModal").style.display = "flex"; }
+function closeManualModal(){ document.getElementById("manualModal").style.display = "none"; }
+
+function updateHeroPreview() {
+  const title = document.getElementById("heroTitle")?.value || "Título aparecerá aqui";
+  const subtitle = document.getElementById("heroSubtitle")?.value || "Prévia do subtítulo...";
+  const bg = document.getElementById("heroBackground")?.value || "./img/fundo.png";
+  const gradient = document.getElementById("heroGradient")?.value || "rgba(7,17,31,0.75), rgba(7,17,31,0.95)";
+  document.getElementById("heroPreviewTitle").textContent = title;
+  document.getElementById("heroPreviewSubtitle").textContent = subtitle;
+  document.getElementById("heroPreviewBox").style.background = `linear-gradient(180deg, ${gradient}), url('${bg}') center/cover no-repeat`;
+}
+
+function detectarNumeroETituloDaLicao(texto) {
+  if (!texto) return null;
+  const primeiraLinha = String(texto).replace(/\r/g, "").split("\n").map(l => l.trim()).find(Boolean) || "";
+  const match = primeiraLinha.match(/^Lição\s*(\d+)\s*[:\-–]\s*(.+)$/i) || primeiraLinha.match(/^Licao\s*(\d+)\s*[:\-–]\s*(.+)$/i);
+  if (!match) return null;
+  return { numero: String(match[1] || "").trim(), titulo: String(match[2] || "").trim() };
+}
+
+function preencherNumeroETituloAutomaticamente(forcar = false) {
+  const textoBaseEl = document.getElementById("aiTextoBase");
+  const numeroEl = document.getElementById("aiLessonNumero");
+  const tituloEl = document.getElementById("aiTitulo");
+  if (!textoBaseEl || !numeroEl || !tituloEl) return;
+  const dados = detectarNumeroETituloDaLicao(textoBaseEl.value);
+  if (!dados) return;
+  if ((forcar || !String(numeroEl.value || "").trim()) && dados.numero) numeroEl.value = dados.numero;
+  if ((forcar || !String(tituloEl.value || "").trim()) && dados.titulo) tituloEl.value = dados.titulo;
+}
+
+async function parseResponseAsJsonSafe(response) {
+  const raw = await response.text();
+  try { return JSON.parse(raw); }
+  catch {
+    throw new Error(raw && raw.trim().startsWith("<") ? "O servidor respondeu com HTML em vez de JSON. Verifique se a rota da API existe e se o admin está abrindo no mesmo domínio do server.js." : "Resposta inválida do servidor.");
+  }
+}
+
+function getPureLessonTemplateForSelectedClass() {
+  const tipo = document.getElementById("aiLessonTipo")?.value || "adult";
+  return tipo === "youth" ? PURE_TEMPLATE_YOUTH : PURE_TEMPLATE_ADULT;
+}
+
+function mapPanelClassToPublico() {
+  return (document.getElementById("aiLessonTipo")?.value || "adult") === "youth" ? "jovens" : "adultos";
+}
+
+function normalizeGeneratedHtml(raw = "") {
+  const text = String(raw || "").trim();
+  if (!text) return "";
+  return text;
+}
+
+function extractBodyFromFullHtml(html = "") {
+  const raw = String(html || "").trim();
+  if (!raw) return "";
+  const bodyMatch = raw.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+  if (bodyMatch?.[1]) return bodyMatch[1].trim();
+  return raw;
+}
+
+function getAiResultHtml() { return normalizeGeneratedHtml(document.getElementById("aiResultado")?.value || ""); }
+function getAiResultBodyHtml() { return extractBodyFromFullHtml(getAiResultHtml()); }
+
+function updateAiPreview() {
+  const preview = document.getElementById("aiPreview");
+  if (!preview) return;
+  const formato = document.getElementById("aiFormato")?.value || "html";
+  const result = document.getElementById("aiResultado")?.value || "";
+  if (!result.trim()) { preview.innerHTML = `<p style="color:#94a3b8;">Sem conteúdo.</p>`; return; }
+  preview.innerHTML = formato === "html" ? getAiResultBodyHtml() : `<pre style="white-space:pre-wrap; font-family:inherit; margin:0;">${result}</pre>`;
+}
+
+function getAiSelectedTipo() { return document.getElementById("aiLessonTipo")?.value === "youth" ? "youth" : "adult"; }
+function getAiSelectedNumero() { return Number(document.getElementById("aiLessonNumero")?.value || 0); }
+function getAiSelectedTrimestre() { return Number(document.getElementById("aiLessonTrimestre")?.value || 0); }
+function getAiSelectedData() { return String(document.getElementById("aiLessonData")?.value || "").trim(); }
+function getAiSelectedTitulo() { return String(document.getElementById("aiTitulo")?.value || "").trim() || "Lição"; }
+
+function ensureAiReadyToPublish() {
+  const numero = getAiSelectedNumero();
+  const html = getAiResultHtml();
+
+  if (!numero) {
+    throw new Error("Informe o número da lição antes de publicar.");
+  }
+
+  if (!html) {
+    throw new Error("Gere ou carregue o conteúdo da lição antes de publicar.");
+  }
+
+  const isOldModel = /<div class="lesson-container">/i.test(html);
+  const isNewModel = /<article class="licao-betel/i.test(html);
+
+  if (!isOldModel && !isNewModel) {
+    throw new Error("O conteúdo atual não está em um modelo válido de lição.");
+  }
+
+  return true;
+}
+
+function openPreviewWindowWithHtml(fullHtml) {
+  const html = normalizeGeneratedHtml(fullHtml);
+  if (!html) throw new Error("Nenhum HTML disponível para pré-visualizar.");
+  const win = window.open("", "_blank");
+  if (!win) throw new Error("O navegador bloqueou a abertura da prévia.");
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}
+
+async function generateAdminAI() {
+  preencherNumeroETituloAutomaticamente(true);
+  const btn = document.getElementById("aiGenerateBtn");
+  const originalHtml = btn ? btn.innerHTML : "";
+  const userInstructions = document.getElementById("aiInstrucoes")?.value || "";
+  const pureTemplate = getPureLessonTemplateForSelectedClass();
+
+  const payload = {
+    tipo: document.getElementById("aiType")?.value || "licao",
+    publico: mapPanelClassToPublico(),
+    titulo: document.getElementById("aiTitulo")?.value || "",
+    tema: document.getElementById("aiTema")?.value || "",
+    objetivo: document.getElementById("aiObjetivo")?.value || "",
+    tom: document.getElementById("aiTom")?.value || "",
+    formato: document.getElementById("aiFormato")?.value || "html",
+    textoBase: document.getElementById("aiTextoBase")?.value || "",
+    conteudoBase: document.getElementById("aiTextoBase")?.value || "",
+    instrucoes: `${userInstructions}\n\nGERAR EXATAMENTE NO MOLDE ABAIXO.\nNÃO MUDAR A ESTRUTURA.\nNÃO OMITIR BLOCOS OBRIGATÓRIOS.\nNÃO RESPONDER EM MARKDOWN.\nPREENCHER O HTML FINAL COMPLETO.\n\n${pureTemplate}`.trim(),
+    numero: document.getElementById("aiLessonNumero")?.value || "",
+    trimestre: document.getElementById("aiLessonTrimestre")?.value || "",
+    data: document.getElementById("aiLessonData")?.value || "",
+    mode: "smart_template"
+  };
+
+  aiLastGeneratedPayload = payload;
+  aiLastGeneratedLesson = null;
+  aiLastGeneratedHtml = "";
+
+  try {
+    if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Gerando...`; }
+    setAiStatus("Gerando conteúdo com o modelo final da lição...");
+
+    const response = await fetch(`${API_BASE}/api/gerar-licao`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    });
+
+    const raw = await response.text();
+
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch (err) {
+      console.error("Resposta bruta do servidor:", raw);
+      throw new Error("O servidor respondeu com HTML em vez de JSON. Verifique se a rota /api/gerar-licao está publicada no Render.");
+    }
+
+    if (!response.ok || !data?.ok) throw new Error(data?.error || "Erro ao gerar conteúdo.");
+
+    const lesson = data?.adminPayload || data?.lesson || data;
+    const generatedHtml =
+      lesson?.conteudoHtml ||
+      lesson?.html ||
+      lesson?.conteudo ||
+      data?.conteudoHtml ||
+      data?.html ||
+      data?.conteudo ||
+      "";
+
+    if (!generatedHtml) throw new Error("O servidor não retornou HTML da lição.");
+
+    aiLastGeneratedLesson = lesson || null;
+    aiLastGeneratedPayload = lesson || payload;
+    aiLastGeneratedHtml = normalizeGeneratedHtml(generatedHtml);
+
+    const resultadoEl = document.getElementById("aiResultado");
+    if (resultadoEl) resultadoEl.value = aiLastGeneratedHtml;
+
+    if (!String(document.getElementById("aiTitulo")?.value || "").trim()) {
+      const tituloGerado = lesson?.titulo || "";
+      if (tituloGerado) document.getElementById("aiTitulo").value = tituloGerado;
+    }
+    if (!String(document.getElementById("aiLessonNumero")?.value || "").trim()) {
+      const numeroGerado = lesson?.numero || "";
+      if (numeroGerado) document.getElementById("aiLessonNumero").value = numeroGerado;
+    }
+
+    document.getElementById("aiFormato").value = "html";
+    updateAiPreview();
+    preencherNumeroETituloAutomaticamente(true);
+    setAiStatus("✅ Lição gerada com sucesso no modelo final.");
+  } catch (error) {
+    console.error(error);
+    setAiStatus(`❌ ${error.message || "Erro ao gerar conteúdo."}`, true);
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = originalHtml || `<i class="fas fa-bolt"></i> Gerar com DeepSeek`; }
+  }
+}
+
+async function refineAdminAI() {
+  const texto = document.getElementById("aiResultado")?.value || document.getElementById("aiTextoBase")?.value || "";
+  if (!texto.trim()) { setAiStatus("❌ Não há texto para refinar.", true); return; }
+  try {
+    setAiStatus("⏳ Refinando conteúdo...");
+    let response;
+    try {
+      response = await fetch(`${API_BASE}/api/admin/deepseek/refinar`, { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ acao:"melhorar", formato:document.getElementById("aiFormato")?.value || "html", publico: mapPanelClassToPublico(), texto, instrucoes: document.getElementById("aiInstrucoes")?.value || "" }) });
+    } catch {
+      response = await fetch("/api/admin/deepseek/refinar", { method:"POST", headers:{ "Content-Type":"application/json" }, body: JSON.stringify({ acao:"melhorar", formato:document.getElementById("aiFormato")?.value || "html", publico: mapPanelClassToPublico(), texto, instrucoes: document.getElementById("aiInstrucoes")?.value || "" }) });
+    }
+    const data = await parseResponseAsJsonSafe(response);
+    if (!response.ok || !data?.ok) throw new Error(data?.error || "Erro ao refinar conteúdo.");
+    document.getElementById("aiResultado").value = data.content || "";
+    aiLastGeneratedHtml = getAiResultHtml();
+    updateAiPreview();
+    setAiStatus("✅ Conteúdo refinado com sucesso.");
+  } catch (error) {
+    console.error(error);
+    setAiStatus(`❌ ${error.message || "Erro ao refinar."}`, true);
+  }
+}
+
+async function saveGeneratedLessonOverride() {
+  ensureAiReadyToPublish();
+  const tipo = getAiSelectedTipo();
+  const numero = getAiSelectedNumero();
+  const trimestre = getAiSelectedTrimestre();
+  const data = getAiSelectedData();
+  const titulo = getAiSelectedTitulo();
+  const htmlCompleto = getAiResultHtml();
+  const key = `${tipo}:${numero}`;
+  const payload = {
+    titulo, data, trimestre, tipo, numero,
+    conteudo: htmlCompleto, html: htmlCompleto, content: htmlCompleto,
+    updatedAt: new Date().toISOString(), origem: "ai_admin"
+  };
+  const [, safeStorageKey] = normalizeOverrideKey(key);
+  await update(ref(db, "ebd/overrides/content"), { [key]: payload, [safeStorageKey]: payload });
+  contentOverrides[key] = payload;
+  contentOverrides[safeStorageKey] = payload;
+  await upsertLessonIntoBaseList(tipo, numero, { titulo, data, trimestre, conteudo: htmlCompleto, html: htmlCompleto });
+  renderTable();
+  updateStats();
+  return { key, payload };
+}
+
+async function previewGeneratedLesson() {
+  try {
+    ensureAiReadyToPublish();
+    openPreviewWindowWithHtml(getAiResultHtml());
+    setAiStatus("✅ Prévia aberta com o HTML final da lição.");
+  } catch (error) {
+    console.error(error);
+    setAiStatus(`❌ ${error.message || "Erro ao abrir prévia."}`, true);
+  }
+}
+
+async function publishGeneratedLesson() {
+  const btn = document.getElementById("aiPublishBtn");
+  const originalHtml = btn ? btn.innerHTML : "";
+  try {
+    if (btn) { btn.disabled = true; btn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Publicando...`; }
+    preencherNumeroETituloAutomaticamente(true);
+    const { key, payload } = await saveGeneratedLessonOverride();
+    setAiStatus(`✅ Lição publicada com sucesso em ${key}.`);
+    alert(`✅ Lição publicada com sucesso!\n\n${payload.titulo}`);
+  } catch (error) {
+    console.error(error);
+    setAiStatus(`❌ ${error.message || "Erro ao publicar a lição."}`, true);
+    alert(`❌ ${error.message || "Erro ao publicar a lição."}`);
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = originalHtml || `<i class="fas fa-upload"></i> Publicar nesta lição`; }
+  }
+}
+
+function sendGeneratedToLessonEditor() {
+  try {
+    ensureAiReadyToPublish();
+    const html = getAiResultHtml();
+    const titulo = getAiSelectedTitulo();
+    const data = getAiSelectedData();
+    document.getElementById("editTitle").value = titulo;
+    document.getElementById("editDate").value = data;
+    document.getElementById("editContent").value = html;
+    document.getElementById("preview").innerHTML = extractBodyFromFullHtml(html);
+    currentEditLesson = { tipo: getAiSelectedTipo(), numero: getAiSelectedNumero(), trimestre: getAiSelectedTrimestre(), titulo, data };
+    document.getElementById("editModal").style.display = "flex";
+    setAiStatus("✅ Conteúdo enviado para o editor da lição.");
+  } catch (error) {
+    console.error(error);
+    setAiStatus(`❌ ${error.message || "Erro ao enviar para o editor."}`, true);
+  }
+}
+
+async function copyAiResult() {
+  try {
+    const value = document.getElementById("aiResultado")?.value || "";
+    if (!value.trim()) throw new Error("Não há conteúdo para copiar.");
+    await navigator.clipboard.writeText(value);
+    setAiStatus("✅ Conteúdo copiado.");
+  } catch (error) {
+    console.error(error);
+    setAiStatus(`❌ ${error.message || "Erro ao copiar."}`, true);
+  }
+}
+
+function clearAiFields() {
+  document.getElementById("aiResultado").value = "";
+  document.getElementById("aiPreview").innerHTML = `<p style="color:#94a3b8;">Sem conteúdo.</p>`;
+  aiLastGeneratedPayload = null; aiLastGeneratedLesson = null; aiLastGeneratedHtml = "";
+  setAiStatus("✅ Área da IA limpa.");
+}
+
+function applyAiPreset(preset) {
+  const typeEl = document.getElementById("aiType");
+  const formatoEl = document.getElementById("aiFormato");
+  const objetivoEl = document.getElementById("aiObjetivo");
+  const instrucoesEl = document.getElementById("aiInstrucoes");
+  const presets = {
+    licao: { type:"licao", formato:"html", objetivo:"Gerar lição completa no modelo final do site.", instrucoes:"Preservar o conteúdo original, aprofundar análise geral, apoio pedagógico e aplicação prática em todos os tópicos." },
+    questionario: { type:"questionario", formato:"texto", objetivo:"Criar questionário difícil.", instrucoes:"Criar 10 perguntas desafiadoras, claras, bem distribuídas e sem padrão previsível de resposta." },
+    resumo: { type:"resumo", formato:"html", objetivo:"Gerar resumo da semana para publicação.", instrucoes:"Texto objetivo, bíblico, claro e impactante." },
+    html: { type:"html", formato:"html", objetivo:"Gerar HTML pronto para a página da lição.", instrucoes:"Retornar o HTML final da lição no modelo completo." },
+    descricao: { type:"descricao", formato:"texto", objetivo:"Gerar descrição para vídeo, áudio ou chamada.", instrucoes:"Texto atrativo, bíblico, claro e direto." }
+  };
+  const cfg = presets[preset];
+  if (!cfg) return;
+  typeEl.value = cfg.type; formatoEl.value = cfg.formato; objetivoEl.value = cfg.objetivo; instrucoesEl.value = cfg.instrucoes;
+  setAiStatus(`✅ Preset aplicado: ${preset}`);
+}
+
+async function saveSettingsGroup(group) {
+  const map = {
+    pageContent: ["topMainMessage","topSecondaryMessage","weeklySummaryTitle","weeklySummaryMessage","videoCallAdultTitle","videoCallAdultMessage","videoCallAdultButton","videoCallYouthTitle","videoCallYouthMessage","videoCallYouthButton","footerSourceText","footerVerseText","aboutText","bibleSearchTitle","bibleSearchSubtitle","bibleSearchPlaceholder","bibleSearchButtonText","bibleSearchDefaultVersion","bibleSearchSuggestions"],
+    general: ["siteName","siteDescription","siteKeywords","siteUrl","contactEmail","contactWhatsapp","releaseDays","customHeader","customFooter"],
+    social: ["socialInstagram","socialFacebook","socialYoutube","socialTiktok"],
+    videos: ["videoAdult","videoYouth"],
+    analytics: ["gaId"],
+    appearance: ["primaryColor","secondaryColor"],
+    titles: ["siteTitle","siteSubtitle"],
+    logo: ["logoUrl"],
+    media: [],
+    podcasts: ["podcastAdultUrl","podcastYouthUrl"],
+    descriptions: ["adultDescription","youthDescription","heroDescription","aboutTextDesc"],
+    hero: ["heroTitle","heroSubtitle","heroBackground","heroGradient"]
+  };
+  const fields = map[group] || [];
+  const payload = {};
+  fields.forEach(id => { const el = document.getElementById(id); if (el) payload[id] = el.value; });
+  await update(ref(db, "ebd/pageSettings"), payload);
+  pageSettings = { ...pageSettings, ...payload };
+  alert("✅ Configurações salvas com sucesso.");
+}
+
+async function loadPageContent() {
+  try {
+    const [lessonsSnap, overridesAdminSnap, overridesContentSnap, settingsSnap, analyticsSnap] = await Promise.all([
+      get(ref(db, "ebd/lessons")),
+      get(ref(db, "ebd/overrides/admin")),
+      get(ref(db, "ebd/overrides/content")),
+      get(ref(db, "ebd/pageSettings")),
+      get(ref(db, "ebd/internalAnalytics"))
+    ]);
+
+    normalizeLessons(lessonsSnap.val() || { adult: [], youth: [] });
+    adminOverrides = overridesAdminSnap.val() || {};
+    contentOverrides = overridesContentSnap.val() || {};
+    pageSettings = settingsSnap.val() || {};
+    internalAnalytics = analyticsSnap.val() || {};
+
+    Object.entries(pageSettings).forEach(([key, value]) => {
+      const el = document.getElementById(key);
+      if (el) el.value = value ?? "";
+    });
+
+    renderTable(); renderTrimesters(); updateStats(); updateHeroPreview(); renderAnalyticsInternal();
+  } catch (error) {
+    console.error(error);
+    alert(`❌ Erro ao carregar dados: ${error.message || error}`);
+  }
+}
+
+function renderAnalyticsInternal() {
+  const entries = Object.entries(internalAnalytics || {}).map(([key, value]) => ({ key, views: Number(value?.views || value || 0) })).sort((a,b) => b.views - a.views);
+  document.getElementById("analyticsTotalViews").textContent = String(entries.reduce((acc, item) => acc + item.views, 0));
+  const topAdult = entries.find(item => item.key.startsWith("adult:"));
+  const topYouth = entries.find(item => item.key.startsWith("youth:"));
+  document.getElementById("analyticsTopAdult").textContent = topAdult ? topAdult.key.replace("adult:", "Lição ") : "—";
+  document.getElementById("analyticsTopYouth").textContent = topYouth ? topYouth.key.replace("youth:", "Lição ") : "—";
+  const list = document.getElementById("analyticsRankingList");
+  list.innerHTML = entries.length ? entries.slice(0, 10).map((item, idx) => `<div class="analytics-row"><div class="analytics-rank">${idx+1}</div><div class="analytics-info"><strong>${item.key}</strong><span>Views registradas</span></div><div class="analytics-badge">${item.views}</div></div>`).join("") : `<div class="empty-analytics">Sem dados por enquanto.</div>`;
+}
+
+async function exportJson() {
+  const payload = { lessonsData, adminOverrides, contentOverrides, pageSettings, internalAnalytics, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "ebd-fiel-backup.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+async function importJson() {
+  const file = document.getElementById("importFile")?.files?.[0];
+  if (!file) return alert("Selecione um arquivo JSON.");
+  const text = await file.text();
+  const data = JSON.parse(text);
+  if (data.lessonsData) {
+    await set(ref(db, "ebd/lessons"), data.lessonsData);
+    await set(ref(db, "ebd/overrides/admin"), data.adminOverrides || {});
+    await set(ref(db, "ebd/overrides/content"), data.contentOverrides || {});
+    await set(ref(db, "ebd/pageSettings"), data.pageSettings || {});
+    await set(ref(db, "ebd/internalAnalytics"), data.internalAnalytics || {});
+  }
+  await loadPageContent();
+  alert("✅ Backup importado com sucesso.");
+}
+
+async function resetEverything() {
+  if (!confirm("Tem certeza que deseja resetar tudo?")) return;
+  await set(ref(db, "ebd"), {});
+  await loadPageContent();
+  alert("✅ Dados resetados.");
+}
+
+async function clearCacheAndReload() {
+  if ("caches" in window) {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+  }
+  alert("✅ Cache limpo.");
+  window.location.reload();
+}
+
+document.getElementById("lessonsTableBody")?.addEventListener("click", async (e) => {
+  const btn = e.target.closest("button");
+  if (!btn) return;
+  const key = btn.dataset.key;
+  const lesson = findLessonByKey(key);
+  if (!lesson) return;
+
+  if (btn.dataset.action === "edit") openEditModal(lesson);
+  if (btn.dataset.action === "toggle") await setLessonAvailability(lesson, !isLessonAvailable(lesson));
+});
+
+document.getElementById("saveLessonBtn")?.addEventListener("click", saveLessonEdit);
+document.getElementById("formatHtmlBtn")?.addEventListener("click", formatHtml);
+document.getElementById("closeModalBtn")?.addEventListener("click", closeModal);
+document.getElementById("cancelModalBtn")?.addEventListener("click", closeModal);
+document.getElementById("btnManualIa")?.addEventListener("click", openManualModal);
+document.getElementById("btnManualTopo")?.addEventListener("click", openManualModal);
+document.getElementById("closeManualModalBtn")?.addEventListener("click", closeManualModal);
+
+document.getElementById("heroTitle")?.addEventListener("input", updateHeroPreview);
+document.getElementById("heroSubtitle")?.addEventListener("input", updateHeroPreview);
+document.getElementById("heroBackground")?.addEventListener("input", updateHeroPreview);
+document.getElementById("heroGradient")?.addEventListener("input", updateHeroPreview);
+
+document.getElementById("aiTextoBase")?.addEventListener("input", preencherNumeroETituloAutomaticamente);
+document.getElementById("aiTextoBase")?.addEventListener("blur", () => preencherNumeroETituloAutomaticamente(true));
+document.getElementById("aiTextoBase")?.addEventListener("paste", () => setTimeout(() => preencherNumeroETituloAutomaticamente(true), 0));
+document.getElementById("aiTextoBase")?.addEventListener("change", () => preencherNumeroETituloAutomaticamente(true));
+document.getElementById("aiGenerateBtn")?.addEventListener("click", generateAdminAI);
+document.getElementById("aiRefinarBtn")?.addEventListener("click", refineAdminAI);
+document.getElementById("aiPreviewBtn")?.addEventListener("click", previewGeneratedLesson);
+document.getElementById("aiPublishBtn")?.addEventListener("click", publishGeneratedLesson);
+document.getElementById("aiUseOnLessonBtn")?.addEventListener("click", sendGeneratedToLessonEditor);
+document.getElementById("aiCopyBtn")?.addEventListener("click", copyAiResult);
+document.getElementById("aiClearBtn")?.addEventListener("click", clearAiFields);
+document.getElementById("aiResultado")?.addEventListener("input", () => { aiLastGeneratedHtml = getAiResultHtml(); updateAiPreview(); });
+document.getElementById("aiFormato")?.addEventListener("change", updateAiPreview);
+
+document.querySelectorAll(".ai-preset").forEach(btn => btn.addEventListener("click", () => applyAiPreset(btn.dataset.preset)));
+document.querySelectorAll(".tab").forEach(tab => tab.addEventListener("click", () => showTab(tab.dataset.tab)));
+document.querySelectorAll(".save-settings-btn").forEach(btn => btn.addEventListener("click", () => saveSettingsGroup(btn.dataset.saveGroup)));
+
+document.getElementById("exportBtn")?.addEventListener("click", exportJson);
+document.getElementById("importBtn")?.addEventListener("click", importJson);
+document.getElementById("resetBtn")?.addEventListener("click", resetEverything);
+document.getElementById("clearCacheBtn")?.addEventListener("click", clearCacheAndReload);
+document.getElementById("analyticsRefreshBtn")?.addEventListener("click", renderAnalyticsInternal);
+document.getElementById("filterClass")?.addEventListener("change", renderTable);
+document.getElementById("filterTrimester")?.addEventListener("change", renderTable);
+document.getElementById("filterStatus")?.addEventListener("change", renderTable);
+document.getElementById("unlockAllBtn")?.addEventListener("click", async () => { for (const lesson of getAllLessons()) await setLessonAvailability(lesson, true); });
+document.getElementById("blockAllBtn")?.addEventListener("click", async () => { for (const lesson of getAllLessons()) await setLessonAvailability(lesson, false); });
+document.getElementById("btnGerador")?.addEventListener("click", () => showTab("aiAdmin"));
+document.getElementById("btnSair")?.addEventListener("click", async () => { await signOut(auth); window.location.href = "admin.html"; });
+
+window.addEventListener("click", (e) => {
+  if (e.target === document.getElementById("editModal")) closeModal();
+  if (e.target === document.getElementById("manualModal")) closeManualModal();
+});
+
+onAuthStateChanged(auth, async (user) => {
+  if (!user) { window.location.href = "admin.html"; return; }
+  if (ADMIN_EMAIL && user.email !== ADMIN_EMAIL) {
+    alert("Acesso não autorizado.");
+    await signOut(auth);
+    window.location.href = "admin.html";
+    return;
+  }
+  try {
+    document.getElementById("filterTrimester").value = getCurrentTrimester();
+    document.getElementById("aiLessonTrimestre").value = getCurrentTrimester();
+    await loadPageContent();
+  } catch (error) {
+    console.error(error);
+    alert(`❌ Erro ao iniciar o painel: ${error.message || error}`);
+  }
+});
+</script>
+</body>
+</html>

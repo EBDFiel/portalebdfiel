@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin Simples - EBD Fiel</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 20px;
+        }
+        .container { max-width: 800px; margin: 0 auto; }
+        h1 { color: #f7b24d; margin-bottom: 20px; }
+        .card {
+            background: #1e293b;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .card h3 { color: #f7b24d; margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 0.85rem; }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: #0f172a;
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+        }
+        button {
+            background: linear-gradient(135deg, #f7b24d, #ff9800);
+            color: #0f172a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .success { color: #22c55e; margin-top: 10px; }
+        .error { color: #ef4444; margin-top: 10px; }
+        hr { margin: 20px 0; border-color: rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 Painel Admin Simples - EBD Fiel</h1>
+        
+        <div class="card">
+            <h3>📢 Mensagens do Topo (Hero)</h3>
+            <label>Título Principal:</label>
+            <input type="text" id="topMainMessage" placeholder="Título do Hero">
+            <label>Subtítulo:</label>
+            <textarea id="topSecondaryMessage" rows="3" placeholder="Subtítulo do Hero"></textarea>
+        </div>
+
+        <div class="card">
+            <h3>🎬 Vídeo Adultos - Chamada</h3>
+            <label>Título:</label>
+            <input type="text" id="videoCallAdultTitle" placeholder="Título do vídeo Adultos">
+            <label>Mensagem:</label>
+            <textarea id="videoCallAdultMessage" rows="3" placeholder="Mensagem do vídeo Adultos"></textarea>
+        </div>
+
+        <div class="card">
+            <h3>🎬 Vídeo Jovens - Chamada</h3>
+            <label>Título:</label>
+            <input type="text" id="videoCallYouthTitle" placeholder="Título do vídeo Jovens">
+            <label>Mensagem:</label>
+            <textarea id="videoCallYouthMessage" rows="3" placeholder="Mensagem do vídeo Jovens"></textarea>
+        </div>
+
+        <div class="card">
+            <h3>📌 Rodapé</h3>
+            <label>Texto da Fonte:</label>
+            <input type="text" id="footerSourceText" placeholder="📖 Fonte: ...">
+            <label>Versículo:</label>
+            <input type="text" id="footerVerseText" placeholder="✝️ Versículo ...">
+        </div>
+
+        <button id="saveBtn">💾 Salvar Todas as Alterações</button>
+        <div id="status"></div>
+        
+        <hr>
+        <button id="logoutBtn" style="background: #ef4444; color: white;">🚪 Sair</button>
+    </div>
+
+    <script type="module">
+        import { auth } from "./firebase-config.js";
+        import { signOut } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+        const dbURL = "https://ebd-fiel-16abc-default-rtdb.firebaseio.com";
+        
+        async function salvarDados() {
+            const dados = {
+                topMainMessage: document.getElementById("topMainMessage").value,
+                topSecondaryMessage: document.getElementById("topSecondaryMessage").value,
+                videoCallAdultTitle: document.getElementById("videoCallAdultTitle").value,
+                videoCallAdultMessage: document.getElementById("videoCallAdultMessage").value,
+                videoCallYouthTitle: document.getElementById("videoCallYouthTitle").value,
+                videoCallYouthMessage: document.getElementById("videoCallYouthMessage").value,
+                footerSourceText: document.getElementById("footerSourceText").value,
+                footerVerseText: document.getElementById("footerVerseText").value
+            };
+            
+            const statusDiv = document.getElementById("status");
+            statusDiv.textContent = "Salvando...";
+            statusDiv.className = "";
+            
+            try {
+                const response = await fetch(`${dbURL}/ebd/settings/pageContent.json`, {
+                    method: "PUT",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(dados)
+                });
+                
+                if (response.ok) {
+                    statusDiv.textContent = "✅ Todas as alterações foram salvas com sucesso!";
+                    statusDiv.className = "success";
+                } else {
+                    throw new Error("Erro ao salvar");
+                }
+            } catch (error) {
+                statusDiv.textContent = "❌ Erro ao salvar: " + error.message;
+                statusDiv.className = "error";
+            }
+        }
+        
+        async function carregarDados() {
+            try {
+                const response = await fetch(`${dbURL}/ebd/settings/pageContent.json`);
+                const dados = await response.json();
+                
+                if (dados) {
+                    document.getElementById("topMainMessage").value = dados.topMainMessage || "";
+                    document.getElementById("topSecondaryMessage").value = dados.topSecondaryMessage || "";
+                    document.getElementById("videoCallAdultTitle").value = dados.videoCallAdultTitle || "";
+                    document.getElementById("videoCallAdultMessage").value = dados.videoCallAdultMessage || "";
+                    document.getElementById("videoCallYouthTitle").value = dados.videoCallYouthTitle || "";
+                    document.getElementById("videoCallYouthMessage").value = dados.videoCallYouthMessage || "";
+                    document.getElementById("footerSourceText").value = dados.footerSourceText || "";
+                    document.getElementById("footerVerseText").value = dados.footerVerseText || "";
+                }
+            } catch (error) {
+                console.error("Erro ao carregar:", error);
+            }
+        }
+        
+        document.getElementById("saveBtn").addEventListener("click", salvarDados);
+        document.getElementById("logoutBtn").addEventListener("click", async () => {
+            await signOut(auth);
+            window.location.href = "admin.html";
+        });
+        
+        // Verificar autenticação
+        auth.onAuthStateChanged((user) => {
+            if (!user) {
+                window.location.href = "admin.html";
+            } else {
+                carregarDados();
+            }
+        });
+    </script>
+</body>
+</html>

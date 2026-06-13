@@ -1,0 +1,483 @@
+
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#07111f">
+  <title>Lição - EBD Fiel</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      --primary: #f7b24d;
+      --primary-2: #ff9800;
+      --dark: #102131;
+      --bg: #eef2f7;
+      --shadow: 0 14px 40px rgba(15, 23, 42, 0.10);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(180deg, #f6f8fb 0%, #eef2f7 100%);
+      color: #162331;
+      opacity: 0;
+      transform: translateY(10px);
+      animation: pageEnter 0.35s ease forwards;
+    }
+
+    @keyframes pageEnter {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==================== FORÇAR TÍTULOS AO MESMO TAMANHO ==================== */
+    .content h1,
+    .content h2,
+    .content h3,
+    .content h4,
+    .content h5,
+    .content h6 {
+      font-size: 1.2rem !important;
+      font-weight: 700 !important;
+      margin: 1rem 0 0.75rem 0 !important;
+      color: #1e3a8a !important;
+      border: none !important;
+      border-left: none !important;
+      padding-left: 0 !important;
+      background: none !important;
+    }
+
+    .content p {
+      font-size: 1rem !important;
+      line-height: 1.7 !important;
+      margin-bottom: 1rem !important;
+    }
+
+    .content *[style*="font-size"] {
+      font-size: inherit !important;
+    }
+
+    .content strong,
+    .content b {
+      font-weight: 700 !important;
+      color: #1e3a8a !important;
+    }
+
+    .content em,
+    .content i {
+      font-style: italic !important;
+    }
+    /* ==================== FIM DA PADRONIZAÇÃO ==================== */
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(7,17,31,0.95);
+      color: white;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      height: 36px;
+      padding: 0 18px;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      color: var(--dark);
+      font-weight: 800;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .topbar-title {
+      font-weight: 700;
+      font-size: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: white;
+      box-shadow: var(--shadow);
+      border-radius: 0 0 24px 24px;
+      overflow: hidden;
+    }
+
+    .cover-header {
+      width: 100%;
+    }
+
+    .cover-header img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .content {
+      padding: 24px 22px;
+      line-height: 1.7;
+      color: #334155;
+    }
+
+    .reading-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+      margin: 20px 0;
+      background: #f1f5f9;
+      border-radius: 20px;
+      padding: 16px;
+    }
+
+    .reading-day {
+      padding: 8px 12px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      font-size: 0.9rem;
+    }
+
+    .reading-day strong {
+      color: #f7b24d;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .content blockquote {
+      background: #f1f5f9;
+      padding: 16px 20px;
+      border-left: 4px solid #f7b24d;
+      border-radius: 12px;
+      margin: 20px 0;
+      font-style: italic;
+      color: #334155;
+    }
+
+    .content hr {
+      margin: 24px 0;
+      border: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, #cbd5e1, transparent);
+    }
+
+    .share-wrap {
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .share-btn {
+      padding: 14px 18px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, #1688dc, #0267b3);
+      color: white;
+      font-weight: 800;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    @media (max-width: 640px) {
+      .content {
+        padding: 18px;
+      }
+    }
+
+    /* Estilos para lista de tarefas */
+    .task-list {
+      list-style: none;
+      padding-left: 0;
+      margin: 18px 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .task-list-item {
+      list-style: none;
+      margin: 0;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+      border: 1px solid #dbe5f0;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .task-list-item:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+      border-color: #cbd5e1;
+    }
+
+    .task-list-item input[type="checkbox"] {
+      appearance: none;
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      margin: 0;
+      border-radius: 7px;
+      border: 2px solid #cbd5e1;
+      background: #fff;
+      position: relative;
+      cursor: default;
+      flex-shrink: 0;
+      box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
+    }
+
+    .task-list-item input[type="checkbox"]:checked {
+      background: linear-gradient(135deg, #f7b24d, #ff9800);
+      border-color: #f59e0b;
+      box-shadow: 0 6px 14px rgba(247, 178, 77, 0.28);
+    }
+
+    .task-list-item input[type="checkbox"]:checked::after {
+      content: "";
+      position: absolute;
+      left: 5px;
+      top: 1px;
+      width: 5px;
+      height: 10px;
+      border: solid #102131;
+      border-width: 0 2px 2px 0;
+      transform: rotate(45deg);
+    }
+
+    .task-list-item:has(input[type="checkbox"]:checked) {
+      border-color: rgba(247, 178, 77, 0.45);
+      background: linear-gradient(180deg, #fffaf0 0%, #fff7ed 100%);
+    }
+
+    .task-list-item:has(input[type="checkbox"]:checked) strong {
+      color: #d97706;
+    }
+
+    /* Estilos para grade de leitura */
+    .reading-grid-header {
+      background: #f1f5f9;
+      border-radius: 16px 16px 0 0;
+      padding: 12px 16px;
+      margin-top: 20px;
+      font-weight: bold;
+    }
+
+    .reading-day {
+      display: inline-block;
+      background: #e2e8f0;
+      border-radius: 8px;
+      padding: 4px 8px;
+      margin: 4px;
+      font-size: 0.85rem;
+    }
+
+    /* Citações */
+    blockquote {
+      background: #f1f5f9;
+      border-left: 4px solid #f7b24d;
+      border-radius: 0 12px 12px 0;
+      padding: 12px 20px;
+      margin: 16px 0;
+      color: #475569;
+    }
+
+    /* Código */
+    code {
+      background: #e2e8f0;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="topbar">
+    <button class="back-btn" onclick="voltar()">
+      <i class="fas fa-arrow-left"></i>
+      VOLTAR
+    </button>
+
+    <div class="topbar-title" id="tituloTopbar">Lição</div>
+  </div>
+
+  <main class="page">
+    <div class="card">
+      <div id="app"></div>
+
+      <div class="share-wrap">
+        <button class="share-btn" id="shareBtn">
+          <i class="fas fa-share-alt"></i> Compartilhar app
+        </button>
+      </div>
+    </div>
+  </main>
+
+  
+  <script>
+    function voltar() {
+      const params = new URLSearchParams(window.location.search);
+      const isAdminPreview = params.get("preview") === "admin" || params.get("returnTo") === "admin";
+
+      if (isAdminPreview) {
+        if (window.opener && !window.opener.closed) {
+          window.close();
+          return;
+        }
+        window.location.replace("./admin-panel.html");
+        return;
+      }
+
+      const destino = sessionStorage.getItem("voltarPara") || "#home";
+      window.location.replace("./index.html" + destino);
+    }
+
+    function normalizeTipo(tipo) {
+      const t = String(tipo || "").toLowerCase();
+      if (t === "youth" || t === "jovens" || t === "jovem") return "youth";
+      return "adult";
+    }
+
+    function montarPaginaDaLicao(licao) {
+      const isYouth = normalizeTipo(licao.tipo || licao.publico) === "youth";
+
+      const imagemCabecalho = isYouth
+        ? "./img/jovens.png"
+        : "./img/adultos.png";
+
+      const conteudo = licao.conteudo
+        || licao.conteudoHtml
+        || licao.markdown
+        || licao.texto
+        || "<p>Conteúdo não disponível.</p>";
+
+      return `
+        <div class="cover-header">
+          <img src="${imagemCabecalho}" alt="Cabeçalho da lição" loading="eager">
+        </div>
+
+        <div class="content">
+          ${conteudo}
+        </div>
+      `;
+    }
+
+    function renderErro(msg) {
+      document.getElementById("app").innerHTML = `
+        <div style="padding:20px;color:red;">
+          <h2>Erro</h2>
+          <p>${msg}</p>
+        </div>
+      `;
+    }
+
+    function getPreviewMode() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("preview") === "admin";
+    }
+
+    function carregarLicao() {
+      const previewMode = getPreviewMode();
+
+      if (previewMode) {
+        const previewLocal = localStorage.getItem("ebdfiel_admin_preview_lesson_v1");
+        if (previewLocal) {
+          try { return JSON.parse(previewLocal); } catch (e) {}
+        }
+
+        const previewSession = sessionStorage.getItem("licaoPreviewAdmin");
+        if (previewSession) {
+          try { return JSON.parse(previewSession); } catch (e) {}
+        }
+      }
+
+      const current = sessionStorage.getItem("licaoAtual");
+      if (current) {
+        try { return JSON.parse(current); } catch (e) {}
+      }
+
+      const previewFallback = localStorage.getItem("ebdfiel_admin_preview_lesson_v1");
+      if (previewFallback) {
+        try { return JSON.parse(previewFallback); } catch (e) {}
+      }
+
+      const sessionPreviewFallback = sessionStorage.getItem("licaoPreviewAdmin");
+      if (sessionPreviewFallback) {
+        try { return JSON.parse(sessionPreviewFallback); } catch (e) {}
+      }
+
+      return null;
+    }
+
+    try {
+      const licao = carregarLicao();
+
+      if (!licao) {
+        renderErro("Nenhuma lição encontrada.");
+      } else {
+        document.title = (licao.titulo || "Lição") + " - EBD Fiel";
+        document.getElementById("tituloTopbar").textContent = licao.titulo || "Lição";
+        document.getElementById("app").innerHTML = montarPaginaDaLicao(licao);
+      }
+    } catch (e) {
+      console.error(e);
+      renderErro("Erro ao carregar a página.");
+    }
+
+    document.getElementById("shareBtn").addEventListener("click", async () => {
+      const url = "https://ebdfiel.com.br/";
+
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: "EBD Fiel",
+            text: "Acesse as lições da Escola Bíblica Dominical:",
+            url
+          });
+        } catch (err) {
+          console.log("Compartilhamento cancelado ou erro:", err);
+        }
+      } else {
+        await navigator.clipboard.writeText(url);
+        alert("Link copiado para a área de transferência!");
+      }
+    });
+  </script>
+
+
+</body>
+</html>

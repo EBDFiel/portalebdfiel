@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Admin - EBD Fiel</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 420px;
+      border: 1px solid rgba(247, 178, 77, 0.3);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .login-card h1 {
+      color: #f7b24d;
+      text-align: center;
+      margin-bottom: 10px;
+      font-size: 1.8rem;
+    }
+
+    .login-card p {
+      color: #94a3b8;
+      text-align: center;
+      margin-bottom: 28px;
+      font-size: 0.95rem;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: #1e293b;
+      color: #fff;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    .login-card input:focus {
+      border-color: rgba(247, 178, 77, 0.6);
+      box-shadow: 0 0 0 3px rgba(247, 178, 77, 0.12);
+    }
+
+    .login-card button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #f7b24d, #ff9800);
+      border: none;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+      color: #102131;
+    }
+
+    .login-card button:hover {
+      transform: translateY(-2px);
+    }
+
+    .login-card button:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error {
+      color: #ef4444;
+      text-align: center;
+      margin-top: 15px;
+      min-height: 20px;
+      font-size: 0.95rem;
+    }
+
+    .success {
+      color: #22c55e;
+      text-align: center;
+      margin-top: 15px;
+      min-height: 20px;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <h1>🔐 Admin EBD Fiel</h1>
+    <p>Entre com seu e-mail e senha do Firebase</p>
+
+    <input type="email" id="email" placeholder="Seu e-mail" autocomplete="email" autofocus>
+    <input type="password" id="password" placeholder="Sua senha" autocomplete="current-password">
+
+    <button id="loginBtn" type="button">Entrar no Painel</button>
+
+    <div id="errorMsg" class="error"></div>
+  </div>
+
+  <script type="module">
+    import { auth, ADMIN_EMAIL } from "./firebase-config.js";
+    import {
+      signInWithEmailAndPassword,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const loginBtn = document.getElementById("loginBtn");
+    const errorMsg = document.getElementById("errorMsg");
+
+    function setMessage(message = "", type = "error") {
+      errorMsg.textContent = message;
+      errorMsg.className = type;
+    }
+
+    async function login() {
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email || !password) {
+        setMessage("Preencha e-mail e senha.");
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Entrando...";
+      setMessage("");
+
+      try {
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        const user = cred.user;
+
+        if (ADMIN_EMAIL && user.email !== ADMIN_EMAIL) {
+          setMessage("Este usuário não tem permissão para acessar o painel.");
+          await auth.signOut();
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Entrar no Painel";
+          return;
+        }
+
+        setMessage("Login realizado com sucesso!", "success");
+        window.location.href = "admin-panel.html";
+      } catch (error) {
+        let msg = "Não foi possível fazer login.";
+
+        if (error.code === "auth/invalid-credential") {
+          msg = "E-mail ou senha inválidos.";
+        } else if (error.code === "auth/user-not-found") {
+          msg = "Usuário não encontrado.";
+        } else if (error.code === "auth/wrong-password") {
+          msg = "Senha incorreta.";
+        } else if (error.code === "auth/invalid-email") {
+          msg = "E-mail inválido.";
+        } else if (error.code === "auth/too-many-requests") {
+          msg = "Muitas tentativas. Tente novamente mais tarde.";
+        }
+
+        setMessage(msg);
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Entrar no Painel";
+      }
+    }
+
+    loginBtn.addEventListener("click", login);
+
+    passwordInput.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") login();
+    });
+
+    emailInput.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") login();
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user && (!ADMIN_EMAIL || user.email === ADMIN_EMAIL)) {
+        window.location.href = "admin-panel.html";
+      }
+    });
+  </script>
+</body>
+</html>
