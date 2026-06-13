@@ -4,8 +4,8 @@
   "description": "Lições bíblicas para Escola Bíblica Dominical",
   "start_url": "./index.html",
   "display": "standalone",
-  "theme_color": "#07111f",
-  "background_color": "#07111f",
+  "theme_color": "#1e3a8a",
+  "background_color": "#f8fafc",
   "orientation": "portrait",
   "icons": [
     {

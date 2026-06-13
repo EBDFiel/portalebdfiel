@@ -1,4 +1,4 @@
-const VERSION = 'v2026-04-10-01';
+const VERSION = 'v2026-06-13-blue-mobile';
 const CACHE_PREFIX = 'ebd-fiel';
 const STATIC_CACHE = `${CACHE_PREFIX}-static-${VERSION}`;
 const RUNTIME_CACHE = `${CACHE_PREFIX}-runtime-${VERSION}`;
@@ -9,13 +9,11 @@ const APP_SHELL = [
   './',
   './index.html',
   './licao.html',
+  './css/blue-mobile-theme.css?v=20260613',
   './manifest.json',
   './ebdfiel.png?v=2',
-  './img/fundo.png',
   './img/logo-adultos.png?v=2',
   './img/logo-jovens.png?v=2',
-  './img/2trimestreadultos.png',
-  './img/2trimestrejovens.png',
   './podcasts/capa-adultos.png?v=1',
   './podcasts/capa-jovens.png?v=1',
   'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap',
